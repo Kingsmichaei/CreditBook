@@ -1,0 +1,105 @@
+{% extends 'core/base.html' %}
+{% block title %}Customers — SYLVALINE Ventures{% endblock %}
+{% block page_title %}Customers{% endblock %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="page-header">
+    <div>
+      <div class="page-header-title">Customers</div>
+      <div class="page-header-sub">{{ customers.count }} customer{{ customers.count|pluralize }} registered</div>
+    </div>
+    <a href="{% url 'customer_add' %}" class="btn-sv btn-sv-primary">
+      <i class="bi bi-person-plus-fill"></i> Add Customer
+    </a>
+  </div>
+
+  <!-- Search -->
+  <div class="glass-card p-3 mb-4">
+    <form method="get">
+      <div class="search-bar">
+        <span class="search-icon"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search by name or phone..." style="border-radius:0 !important;">
+        {% if q %}
+        <a href="{% url 'customers_list' %}" class="icon-btn" style="border-radius:0;border:none;border-left:1px solid var(--border);">
+          <i class="bi bi-x"></i>
+        </a>
+        {% endif %}
+      </div>
+    </form>
+  </div>
+
+  {% if customers %}
+  <div class="row g-3">
+    {% for customer in customers %}
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="glass-card p-4" style="transition:all var(--transition);" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+        <div class="d-flex align-items-start gap-3 mb-3">
+          <div class="avatar" style="width:46px;height:46px;font-size:16px;flex-shrink:0;">
+            {{ customer.name|slice:":1"|upper }}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              {{ customer.name }}
+            </div>
+            {% if customer.phone %}
+            <div style="font-size:13px;color:var(--text-2);">
+              <i class="bi bi-telephone-fill me-1" style="font-size:10px;"></i>{{ customer.phone }}
+            </div>
+            {% endif %}
+          </div>
+          {% if customer.total_debt > 0 %}
+          <span class="sv-badge badge-red">Owes ₦{{ customer.total_debt|floatformat:0 }}</span>
+          {% else %}
+          <span class="sv-badge badge-green">Clear</span>
+          {% endif %}
+        </div>
+
+        {% if customer.email %}
+        <div style="font-size:13px;color:var(--text-3);margin-bottom:8px;">
+          <i class="bi bi-envelope me-1"></i>{{ customer.email }}
+        </div>
+        {% endif %}
+
+        <div class="divider"></div>
+
+        <div class="d-flex align-items-center justify-content-between">
+          <div>
+            <span style="font-size:12px;color:var(--text-3);">Total purchases:</span>
+            <span style="font-family:var(--font-display);font-weight:700;font-size:14px;color:var(--accent);margin-left:6px;">
+              ₦{{ customer.total_purchases|floatformat:0 }}
+            </span>
+          </div>
+          <div class="d-flex gap-1">
+            {% if customer.phone %}
+            <a href="https://wa.me/{{ customer.whatsapp_number }}" target="_blank" class="icon-btn" title="WhatsApp" style="color:#25d366;">
+              <i class="bi bi-whatsapp"></i>
+            </a>
+            {% endif %}
+            <a href="{% url 'customer_detail' customer.pk %}" class="icon-btn" title="View">
+              <i class="bi bi-eye"></i>
+            </a>
+            <a href="{% url 'customer_edit' customer.pk %}" class="icon-btn" title="Edit">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'customer_delete' customer.pk %}" class="icon-btn" title="Delete" style="color:var(--accent-3);">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="glass-card empty-state">
+    <div class="empty-state-icon"><i class="bi bi-people"></i></div>
+    <div class="empty-state-title">No customers yet</div>
+    <div class="empty-state-sub mb-3">Add your first customer to get started.</div>
+    <a href="{% url 'customer_add' %}" class="btn-sv btn-sv-primary">
+      <i class="bi bi-person-plus"></i> Add Customer
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

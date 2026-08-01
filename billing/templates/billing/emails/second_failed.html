@@ -1,0 +1,8 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <h2>Payment failed again</h2>
+    <p>Hello {{ tenant.owner.first_name|default:tenant.business_name }},</p>
+    <p>Your subscription payment attempt {{ attempt_number }} also failed. We will retry again on {{ next_retry_date }}.</p>
+  </body>
+</html>

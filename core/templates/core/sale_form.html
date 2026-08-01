@@ -1,0 +1,108 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ title }} — SYLVALINE Ventures{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="fade-up" style="max-width:640px;margin:0 auto;">
+  <div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+      <a href="{% url 'sales_list' %}" class="icon-btn"><i class="bi bi-arrow-left"></i></a>
+      <div class="page-header-title">{{ title }}</div>
+    </div>
+  </div>
+
+  <div class="glass-card p-4">
+    <!-- Live Total Preview -->
+    <div class="glass-card-2 p-3 mb-4 text-center">
+      <div style="font-size:12px;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;">Sale Total</div>
+      <div id="totalPreview" style="font-family:var(--font-display);font-size:32px;font-weight:800;color:var(--accent);">₦0</div>
+    </div>
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+      <div class="row g-3">
+        <div class="col-12">
+          <label class="form-label">Customer <span style="color:var(--text-3);font-weight:400;">(optional)</span></label>
+          {{ form.customer }}
+        </div>
+        <div class="col-12">
+          <label class="form-label">Product / Service *</label>
+          {{ form.product }}
+          {% if form.product.errors %}<div style="font-size:12px;color:var(--accent-3);">{{ form.product.errors|join:", " }}</div>{% endif %}
+        </div>
+        <div class="col-12">
+          <label class="form-label">Description</label>
+          {{ form.description }}
+        </div>
+        <div class="col-6">
+          <label class="form-label">Quantity *</label>
+          {{ form.quantity }}
+        </div>
+        <div class="col-6">
+          <label class="form-label">Unit Price (₦) *</label>
+          {{ form.unit_price }}
+        </div>
+        <div class="col-6">
+          <label class="form-label">Payment Method</label>
+          {{ form.payment_method }}
+        </div>
+        <div class="col-6">
+          <label class="form-label">Date</label>
+          {{ form.date }}
+        </div>
+        <div class="col-12">
+          <label class="form-label">Notes</label>
+          {{ form.notes }}
+        </div>
+      </div>
+
+      <!-- Credit warning -->
+      <div id="creditWarning" class="glass-card-2 p-3 mt-3" style="display:none;border-left:3px solid var(--accent-2);">
+        <div style="font-size:13px;color:var(--accent-2);">
+          <i class="bi bi-exclamation-triangle-fill me-2"></i>
+          <strong>Credit Sale:</strong> A debt record will be automatically created for this customer.
+        </div>
+      </div>
+
+      <div class="divider mt-4"></div>
+
+      <div class="d-flex gap-3">
+        <button type="submit" class="btn-sv btn-sv-primary" style="flex:1;justify-content:center;">
+          <i class="bi bi-check-lg"></i> Save Sale
+        </button>
+        <a href="{% url 'sales_list' %}" class="btn-sv btn-sv-glass" style="flex:1;justify-content:center;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>select option { background: var(--bg-2); color: var(--text); }</style>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const qtyInput   = document.querySelector('[name="quantity"]');
+  const priceInput = document.querySelector('[name="unit_price"]');
+  const preview    = document.getElementById('totalPreview');
+  const paySelect  = document.querySelector('[name="payment_method"]');
+  const warning    = document.getElementById('creditWarning');
+
+  function updateTotal() {
+    const qty   = parseFloat(qtyInput.value)   || 0;
+    const price = parseFloat(priceInput.value) || 0;
+    const total = qty * price;
+    preview.textContent = '₦' + total.toLocaleString('en-NG', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+  }
+
+  function checkCredit() {
+    warning.style.display = (paySelect.value === 'credit') ? 'block' : 'none';
+  }
+
+  qtyInput.addEventListener('input', updateTotal);
+  priceInput.addEventListener('input', updateTotal);
+  paySelect.addEventListener('change', checkCredit);
+  updateTotal();
+  checkCredit();
+</script>
+{% endblock %}

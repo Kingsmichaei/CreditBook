@@ -1,0 +1,29 @@
+{% extends 'core/base.html' %}
+{% load humanize %}
+{% block title %}Subscribe{% endblock %}
+{% block content %}
+<div class="page-inner d-flex justify-content-center align-items-center min-vh-100">
+  <div class="glass-card p-5 text-center" style="max-width: 720px;">
+    <p class="text-uppercase small mb-2" style="letter-spacing: 0.2em; color: var(--accent);">Subscription</p>
+    <h2 class="fw-bold mb-3">Unlock full access to CreditBook</h2>
+    <p class="mb-4" style="color: var(--text-2);">
+      Continue using your workspace with a secure monthly subscription. Your card will be charged ₦{{ subscription_price|floatformat:2|intcomma }} monthly and you can manage it anytime from the billing portal.
+    </p>
+    {% if error_message %}
+    <div class="alert alert-danger" role="alert">{{ error_message }}</div>
+    {% endif %}
+    <div class="glass-card p-4 mb-4">
+      <h3 class="display-5 fw-bold">₦{{ subscription_price|floatformat:2|intcomma }} / month</h3>
+      <ul class="list-unstyled mt-3">
+        <li><i class="bi bi-check-circle me-2 text-success"></i>Full dashboard access</li>
+        <li><i class="bi bi-check-circle me-2 text-success"></i>Customer, sales, and inventory management</li>
+        <li><i class="bi bi-check-circle me-2 text-success"></i>Secure recurring billing</li>
+      </ul>
+    </div>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn-sv btn-sv-primary w-100">Proceed to Payment</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

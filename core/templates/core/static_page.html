@@ -1,0 +1,358 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" sizes="96x96" href="{% static 'icons/favicon-96x96.png' %}">
+  <link rel="icon" href="{% static 'icons/favicon.svg' %}" type="image/svg+xml" sizes="any">
+  <link rel="icon" href="{% static 'icons/favicon.ico' %}">
+  <link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
+  <link rel="manifest" href="{% static 'icons/site.webmanifest' %}">
+  <title>{% block title %}CreditBook{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root {
+      --brand: #2563EB;
+      --brand-2: #22C55E;
+      --brand-grad: linear-gradient(135deg, #2563EB, #22C55E);
+      --font-d: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      --font-b: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      --r: 22px;
+      --r-sm: 14px;
+      --ease: 0.3s cubic-bezier(.4,0,.2,1);
+    }
+
+    [data-theme="dark"] {
+      --bg: #060d1a;
+      --bg-2: #0c1528;
+      --surface: rgba(255,255,255,.06);
+      --surface-2: rgba(255,255,255,.09);
+      --surface-h: rgba(255,255,255,.12);
+      --border: rgba(255,255,255,.08);
+      --border-2: rgba(255,255,255,.14);
+      --text: #eef2ff;
+      --text-2: rgba(238,242,255,.65);
+      --text-3: rgba(238,242,255,.35);
+      --glass: rgba(8,14,28,.88);
+      --blur: blur(28px) saturate(180%);
+      --shadow: 0 24px 64px rgba(0,0,0,.55);
+      --shadow-sm: 0 8px 28px rgba(0,0,0,.35);
+    }
+
+    [data-theme="light"] {
+      --bg: #f0f4fb;
+      --bg-2: #e6edf8;
+      --surface: rgba(255,255,255,.88);
+      --surface-2: rgba(255,255,255,.96);
+      --surface-h: rgba(255,255,255,.98);
+      --border: rgba(0,0,0,.07);
+      --border-2: rgba(0,0,0,.12);
+      --text: #0a1628;
+      --text-2: rgba(10,22,40,.64);
+      --text-3: rgba(10,22,40,.38);
+      --glass: rgba(240,244,251,.92);
+      --blur: blur(28px) saturate(180%);
+      --shadow: 0 24px 64px rgba(37,99,235,.09);
+      --shadow-sm: 0 8px 28px rgba(37,99,235,.06);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font-b);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background var(--ease), color var(--ease);
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(37,99,235,.12), transparent 35%),
+        radial-gradient(circle at 95% 0%, rgba(34,197,94,.08), transparent 30%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page-shell {
+      position: relative;
+      z-index: 1;
+      padding: 0 24px 60px;
+    }
+
+    .site-nav-wrap {
+      padding: 20px 0 0;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      background: transparent;
+    }
+
+    .site-nav {
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      transition: background var(--ease), border-color var(--ease);
+    }
+
+    .nav-logo {
+      font-family: var(--font-d);
+      font-size: 1.5rem;
+      font-weight: 800;
+      background: var(--brand-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+      letter-spacing: -.03em;
+      flex-shrink: 0;
+    }
+
+    .nav-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-nav-outline,
+    .btn-nav-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-b);
+      font-weight: 600;
+      text-decoration: none;
+      transition: all var(--ease);
+    }
+
+    .btn-nav-outline {
+      color: var(--text);
+    }
+
+    .btn-nav-outline:hover {
+      background: var(--surface-2);
+      color: var(--text);
+    }
+
+    .btn-nav-primary {
+      color: #fff;
+      border: none;
+    }
+
+    .btn-nav-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 24px rgba(37,99,235,.35);
+      color: #fff;
+    }
+
+    .theme-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-2);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: all var(--ease);
+      flex-shrink: 0;
+    }
+
+    .hero-section {
+      padding: 60px 0 40px;
+    }
+
+    .hero-title {
+      font-family: var(--font-d);
+      font-size: clamp(2.3rem, 4vw, 3.6rem);
+      line-height: 1.02;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .hero-subtitle {
+      max-width: 740px;
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: var(--text-2);
+      margin-bottom: 28px;
+    }
+
+    .page-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      box-shadow: var(--shadow-sm);
+      padding: 34px 36px;
+      margin-top: 24px;
+    }
+
+    .section-heading {
+      font-family: var(--font-d);
+      font-size: 1.9rem;
+      margin-bottom: 18px;
+      color: var(--text);
+    }
+
+    .section-text {
+      color: var(--text-2);
+      line-height: 1.8;
+      margin-bottom: 18px;
+    }
+
+    .footer {
+      margin-top: 60px;
+      padding-top: 40px;
+      border-top: 1px solid var(--border);
+      color: var(--text-2);
+    }
+
+    .footer-logo {
+      display: inline-flex;
+      align-items: center;
+      font-family: var(--font-d);
+      font-size: 1.3rem;
+      font-weight: 800;
+      letter-spacing: -.03em;
+      text-decoration: none;
+      background: var(--brand-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 14px;
+    }
+
+    .footer-links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .footer-links li { margin-bottom: 10px; }
+    .footer-links a { color: var(--text-2); text-decoration: none; }
+    .footer-links a:hover { color: var(--text); }
+
+    .footer-bottom {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 32px;
+      font-size: 0.95rem;
+      color: var(--text-2);
+    }
+
+    .footer-bottom a { color: var(--text-2); text-decoration: none; }
+    .footer-bottom a:hover { color: var(--text); }
+
+    @media (max-width: 768px) {
+      .nav-right { width: 100%; justify-content: center; }
+      .hero-section { padding-top: 40px; }
+      .page-card { padding: 28px; }
+      .footer-bottom { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <div class="site-nav-wrap">
+      <nav class="site-nav">
+        <a href="{% url 'landing' %}" class="nav-logo">CreditBook</a>
+        <div class="nav-right">
+          <a href="{% url 'about' %}" class="btn-nav-outline">About</a>
+          <a href="{% url 'contact' %}" class="btn-nav-outline">Contact</a>
+          <a href="{% url 'privacy_policy' %}" class="btn-nav-outline">Privacy</a>
+          <a href="{% url 'terms_of_service' %}" class="btn-nav-outline">Terms</a>
+          <button class="theme-btn" id="themeToggle" title="Toggle theme">
+            <i class="bi bi-moon-fill" id="themeIcon"></i>
+          </button>
+          <a href="{% url 'login' %}" class="btn-nav-primary">Sign In</a>
+        </div>
+      </nav>
+    </div>
+
+    <section class="hero-section text-center">
+      <div class="container">
+        <h1 class="hero-title">{% block page_heading %}CreditBook{% endblock %}</h1>
+        <p class="hero-subtitle">{% block page_subtitle %}Simple, secure tools for running your business online.{% endblock %}</p>
+        <div class="page-card mx-auto" style="max-width: 880px; text-align:left;">
+          {% block content %}{% endblock %}
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer container">
+      <div class="row gy-4">
+        <div class="col-md-4">
+          <a href="{% url 'landing' %}" class="footer-logo">CreditBook</a>
+          <p class="section-text">A simple business dashboard for customer debts, sales, expenses and recurring billing.</p>
+        </div>
+        <div class="col-md-2">
+          <div class="mb-3" style="font-weight:700;color:var(--text);">Company</div>
+          <ul class="footer-links">
+            <li><a href="{% url 'about' %}">About</a></li>
+            <li><a href="{% url 'contact' %}">Contact</a></li>
+            <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+            <li><a href="{% url 'terms_of_service' %}">Terms of Service</a></li>
+          </ul>
+        </div>
+        <div class="col-md-4">
+          <div class="mb-3" style="font-weight:700;color:var(--text);">Connect</div>
+          <p class="section-text">Visit <a href="https://kingsmichael.tech" target="_blank" style="color:var(--text);text-decoration:underline;">kingsmichael.tech</a> or reach out at <a href="mailto:kingsmichael.x@gmail.com" style="color:var(--text);text-decoration:underline;">kingsmichael.x@gmail.com</a>.</p>
+          <p class="section-text">GitHub: <a href="https://github.com/Omkcode" target="_blank" style="color:var(--text);text-decoration:underline;">github.com/Omkcode</a></p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 CreditBook. All rights reserved.</span>
+        <div style="display:flex;gap:18px;flex-wrap:wrap;">
+          <a href="{% url 'privacy_policy' %}">Privacy</a>
+          <a href="{% url 'terms_of_service' %}">Terms</a>
+          <a href="{% url 'contact' %}">Help Center</a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const html = document.documentElement;
+    const themeToggle = document.getElementById('themeToggle');
+    const themeIcon = document.getElementById('themeIcon');
+
+    function applyTheme(theme) {
+      html.setAttribute('data-theme', theme);
+      localStorage.setItem('sv-theme', theme);
+      themeIcon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+    }
+
+    const savedTheme = localStorage.getItem('sv-theme') || 'dark';
+    applyTheme(savedTheme);
+
+    if (themeToggle) {
+      themeToggle.addEventListener('click', () => {
+        const nextTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        applyTheme(nextTheme);
+      });
+    }
+  </script>
+</body>
+</html>

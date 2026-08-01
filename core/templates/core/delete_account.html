@@ -1,0 +1,26 @@
+{% extends 'core/auth_base.html' %}
+
+{% block title %}Delete account | CreditBook{% endblock %}
+
+{% block content %}
+  <h2 class="fw-bold mb-2">Delete your account</h2>
+  <p class="text-muted">This will permanently remove your CreditBook account and workspace data. This action cannot be undone.</p>
+  <form method="post" class="mt-4">
+    {% csrf_token %}
+    {% if code_sent %}
+      <div class="mb-3">
+        <label class="form-label" for="verification_code">Verification code</label>
+        <input type="text" id="verification_code" name="verification_code" class="form-control" maxlength="6" required />
+      </div>
+      <p class="text-muted mb-3">Enter the six-digit code we sent to your email to confirm account deletion.</p>
+      <button type="submit" class="btn btn-danger w-100">Delete my account</button>
+    {% else %}
+      <div class="mb-3">
+        <label class="form-label" for="confirm_email">Type your email to confirm</label>
+        <input type="email" id="confirm_email" name="confirm_email" class="form-control" placeholder="you@company.com" required />
+      </div>
+      <button type="submit" class="btn btn-danger w-100">Send verification code</button>
+    {% endif %}
+  </form>
+  <a href="{% url 'dashboard' %}" class="btn btn-outline-light w-100 mt-3">Cancel</a>
+{% endblock %}

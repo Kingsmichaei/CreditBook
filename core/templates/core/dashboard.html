@@ -1,0 +1,351 @@
+{% extends 'core/base.html' %}
+{% block title %}Dashboard — SYLVALINE Ventures{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="stagger">
+
+  <!-- Greeting Row -->
+  <div class="d-flex align-items-center justify-content-between mb-4">
+    <div>
+      <h1 style="font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--text);margin:0;">
+        Good {% now "G" as hour %}{% if hour|add:"0" < 12 %}Morning{% elif hour|add:"0" < 17 %}Afternoon{% else %}Evening{% endif %} 👋
+      </h1>
+      <p style="color:var(--text-2);font-size:14px;margin-top:4px;">
+        Here's what's happening at Complete SYLVALINE Ventures today.
+      </p>
+    </div>
+    <div style="font-size:13px;color:var(--text-3);">{% now "l, N j, Y" %}</div>
+  </div>
+
+  <!-- Stats Grid -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="stat-card green">
+        <div class="stat-icon green"><i class="bi bi-bag-check-fill"></i></div>
+        <div class="stat-value">₦{{ monthly_sales|floatformat:0 }}</div>
+        <div class="stat-label">Sales This Month</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card amber">
+        <div class="stat-icon amber"><i class="bi bi-arrow-up-circle-fill"></i></div>
+        <div class="stat-value">₦{{ monthly_expenses|floatformat:0 }}</div>
+        <div class="stat-label">Expenses This Month</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card red">
+        <div class="stat-icon red"><i class="bi bi-exclamation-circle-fill"></i></div>
+        <div class="stat-value">₦{{ total_debts|floatformat:0 }}</div>
+        <div class="stat-label">Total Unpaid Debts</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card blue">
+        <div class="stat-icon blue"><i class="bi bi-graph-up-arrow"></i></div>
+        <div class="stat-value">₦{{ net_profit|floatformat:0 }}</div>
+        <div class="stat-label">Net Profit (Month)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="glass-card p-3 mb-4">
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'sale_add' %}" class="btn-sv btn-sv-primary" style="font-size:13px;padding:9px 16px;">
+        <i class="bi bi-plus-circle-fill"></i> Record Sale
+      </a>
+      <a href="{% url 'debt_add' %}" class="btn-sv btn-sv-glass" style="font-size:13px;padding:9px 16px;">
+        <i class="bi bi-exclamation-circle"></i> Add Debt
+      </a>
+      <a href="{% url 'expense_add' %}" class="btn-sv btn-sv-glass" style="font-size:13px;padding:9px 16px;">
+        <i class="bi bi-arrow-up-circle"></i> Log Expense
+      </a>
+      <a href="{% url 'customer_add' %}" class="btn-sv btn-sv-glass" style="font-size:13px;padding:9px 16px;">
+        <i class="bi bi-person-plus"></i> Add Customer
+      </a>
+      <a href="{% url 'income_add' %}" class="btn-sv btn-sv-glass" style="font-size:13px;padding:9px 16px;">
+        <i class="bi bi-arrow-down-circle"></i> Record Income
+      </a>
+      <a href="{% url 'billing_dashboard' %}" class="btn-sv btn-sv-secondary" style="font-size:13px;padding:9px 16px;">
+        <i class="bi bi-credit-card-2-front-fill"></i> Billing
+      </a>
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-lg-7">
+      <div class="glass-card p-4 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:16px;">7-Day Overview</div>
+          <span class="sv-badge badge-gray">Last 7 days</span>
+        </div>
+        <canvas id="weekChart" style="max-height:220px;"></canvas>
+      </div>
+    </div>
+    <div class="col-12 col-lg-5">
+      <div class="glass-card p-4 h-100">
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:16px;">Monthly Trend</div>
+          <span class="sv-badge badge-gray">6 months</span>
+        </div>
+        <canvas id="monthChart" style="max-height:220px;"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Row -->
+  <div class="row g-3">
+
+    <!-- Recent Sales -->
+    <div class="col-12 col-lg-6">
+      <div class="glass-card">
+        <div class="d-flex align-items-center justify-content-between p-4 pb-0">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:16px;">Recent Sales</div>
+          <a href="{% url 'sales_list' %}" class="btn-sv btn-sv-glass" style="font-size:12px;padding:6px 12px;">View all</a>
+        </div>
+        <div class="p-3">
+          {% if recent_sales %}
+          {% for sale in recent_sales %}
+          <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="transition:background var(--transition);" onmouseover="this.style.background='var(--surface-hover)'" onmouseout="this.style.background='transparent'">
+            <div class="stat-icon green mb-0" style="width:36px;height:36px;border-radius:10px;flex-shrink:0;font-size:14px;">
+              <i class="bi bi-bag"></i>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ sale.product }}</div>
+              <div style="font-size:12px;color:var(--text-3);">
+                {{ sale.customer.name|default:"Walk-in" }} · {{ sale.date }}
+              </div>
+            </div>
+            <div style="font-family:var(--font-display);font-weight:700;color:var(--accent);font-size:15px;white-space:nowrap;">
+              ₦{{ sale.total|floatformat:0 }}
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="empty-state" style="padding:30px 20px;">
+            <div class="empty-state-icon" style="font-size:32px;"><i class="bi bi-bag-x"></i></div>
+            <div class="empty-state-sub">No sales recorded yet.</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Unpaid Debts -->
+    <div class="col-12 col-lg-6">
+      <div class="glass-card">
+        <div class="d-flex align-items-center justify-content-between p-4 pb-0">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:16px;">
+            Pending Debts
+            {% if overdue_count %}
+            <span class="sv-badge badge-red ms-2">{{ overdue_count }} overdue</span>
+            {% endif %}
+          </div>
+          <a href="{% url 'debts_list' %}" class="btn-sv btn-sv-glass" style="font-size:12px;padding:6px 12px;">View all</a>
+        </div>
+        <div class="p-3">
+          {% if recent_debts %}
+          {% for debt in recent_debts %}
+          <div class="d-flex align-items-center gap-3 p-2 rounded-3" style="transition:background var(--transition);" onmouseover="this.style.background='var(--surface-hover)'" onmouseout="this.style.background='transparent'">
+            <div class="avatar" style="width:36px;height:36px;font-size:13px;flex-shrink:0;">
+              {{ debt.customer.name|slice:":1"|upper }}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:600;font-size:14px;">{{ debt.customer.name }}</div>
+              <div style="font-size:12px;color:var(--text-3);">
+                {{ debt.description|truncatechars:30|default:"No description" }}
+                {% if debt.is_overdue %}<span class="sv-badge badge-red ms-1" style="font-size:10px;">Overdue</span>{% endif %}
+              </div>
+            </div>
+            <div>
+              <div style="font-family:var(--font-display);font-weight:700;color:var(--accent-3);font-size:15px;text-align:right;">₦{{ debt.amount|floatformat:0 }}</div>
+              {% if debt.customer.phone %}
+              <a href="https://wa.me/{{ debt.customer.whatsapp_number }}?text=Hello+{{ debt.customer.name|urlencode }},+this+is+a+reminder+from+Complete+SYLVALINE+Ventures+about+your+outstanding+debt+of+%E2%82%A6{{ debt.amount|floatformat:0 }}.+Please+make+payment+at+your+earliest+convenience.+Thank+you." target="_blank" class="btn-sv btn-sv-whatsapp mt-1" style="font-size:10px;padding:3px 8px;">
+                <i class="bi bi-whatsapp"></i> Remind
+              </a>
+              {% endif %}
+            </div>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="empty-state" style="padding:30px 20px;">
+            <div class="empty-state-icon" style="font-size:32px;"><i class="bi bi-check-circle"></i></div>
+            <div class="empty-state-sub">No pending debts. All clear!</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Expenses -->
+    <div class="col-12">
+      <div class="glass-card">
+        <div class="d-flex align-items-center justify-content-between p-4 pb-0">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:16px;">Recent Expenses</div>
+          <a href="{% url 'expenses_list' %}" class="btn-sv btn-sv-glass" style="font-size:12px;padding:6px 12px;">View all</a>
+        </div>
+        <div class="table-wrapper m-3" style="border:none;border-radius:var(--radius-sm);">
+          {% if recent_expenses %}
+          <table class="sv-table">
+            <thead>
+              <tr>
+                <th>Description</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for exp in recent_expenses %}
+              <tr>
+                <td>{{ exp.description }}</td>
+                <td><span class="sv-badge badge-amber">{{ exp.get_category_display }}</span></td>
+                <td style="font-family:var(--font-display);font-weight:700;color:var(--accent-3);">₦{{ exp.amount|floatformat:0 }}</td>
+                <td style="color:var(--text-2);">{{ exp.date }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% else %}
+          <div class="empty-state" style="padding:30px 20px;">
+            <div class="empty-state-sub">No expenses recorded.</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end row -->
+</div><!-- end stagger -->
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const labels7 = {{ chart_labels|safe }};
+const sales7  = {{ chart_sales|safe }};
+const exp7    = {{ chart_expenses|safe }};
+const mLabels = {{ monthly_labels|safe }};
+const mSales  = {{ monthly_sales_data|safe }};
+const mExp    = {{ monthly_expense_data|safe }};
+
+const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
+const tickColor = () => isDark() ? '#f0f4ff' : '#0d1b2a';
+const gridColor = () => isDark() ? 'rgba(255,255,255,0.11)' : 'rgba(13,27,42,0.12)';
+const borderColor = () => isDark() ? 'rgba(255,255,255,0.15)' : 'rgba(13,27,42,0.18)';
+
+// 7-Day Chart
+const weekCtx = document.getElementById('weekChart').getContext('2d');
+const weekChart = new Chart(weekCtx, {
+  type: 'bar',
+  data: {
+    labels: labels7,
+    datasets: [
+      {
+        label: 'Sales',
+        data: sales7,
+        backgroundColor: 'rgba(0,229,160,0.25)',
+        borderColor: '#00e5a0',
+        borderWidth: 2,
+        borderRadius: 6,
+      },
+      {
+        label: 'Expenses',
+        data: exp7,
+        backgroundColor: 'rgba(244,63,94,0.25)',
+        borderColor: '#f43f5e',
+        borderWidth: 2,
+        borderRadius: 6,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: { labels: { color: tickColor(), boxWidth: 12, font: { size: 12 } } },
+      tooltip: { titleColor: tickColor(), bodyColor: tickColor(), backgroundColor: isDark() ? '#111827' : '#ffffff', borderColor: borderColor(), borderWidth: 1 }
+    },
+    scales: {
+      y: {
+        grid: { color: gridColor(), borderColor: borderColor() },
+        ticks: { color: tickColor(), font: { size: 11 } }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: tickColor(), font: { size: 11 } }
+      }
+    }
+  }
+});
+
+// Monthly Chart
+const monthCtx = document.getElementById('monthChart').getContext('2d');
+const monthChart = new Chart(monthCtx, {
+  type: 'line',
+  data: {
+    labels: mLabels,
+    datasets: [
+      {
+        label: 'Sales',
+        data: mSales,
+        borderColor: '#00e5a0',
+        backgroundColor: 'rgba(0,229,160,0.12)',
+        tension: 0.4,
+        fill: true,
+        pointRadius: 4,
+        pointBackgroundColor: '#00e5a0',
+      },
+      {
+        label: 'Expenses',
+        data: mExp,
+        borderColor: '#f43f5e',
+        backgroundColor: 'rgba(244,63,94,0.12)',
+        tension: 0.4,
+        fill: true,
+        pointRadius: 4,
+        pointBackgroundColor: '#f43f5e',
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: true,
+    plugins: {
+      legend: { labels: { color: tickColor(), boxWidth: 12, font: { size: 12 } } },
+      tooltip: { titleColor: tickColor(), bodyColor: tickColor(), backgroundColor: isDark() ? '#111827' : '#ffffff', borderColor: borderColor(), borderWidth: 1 }
+    },
+    scales: {
+      y: {
+        grid: { color: gridColor(), borderColor: borderColor() },
+        ticks: { color: tickColor(), font: { size: 11 } }
+      },
+      x: {
+        grid: { display: false },
+        ticks: { color: tickColor(), font: { size: 11 } }
+      }
+    }
+  }
+});
+
+function refreshChartTheme(chart) {
+  chart.options.plugins.legend.labels.color = tickColor();
+  chart.options.plugins.tooltip.titleColor = tickColor();
+  chart.options.plugins.tooltip.bodyColor = tickColor();
+  chart.options.plugins.tooltip.backgroundColor = isDark() ? '#111827' : '#ffffff';
+  chart.options.plugins.tooltip.borderColor = borderColor();
+  chart.options.scales.y.grid.color = gridColor();
+  chart.options.scales.y.grid.borderColor = borderColor();
+  chart.options.scales.y.ticks.color = tickColor();
+  chart.options.scales.x.ticks.color = tickColor();
+  chart.update();
+}
+
+window.addEventListener('sv-theme-change', () => {
+  refreshChartTheme(weekChart);
+  refreshChartTheme(monthChart);
+});
+</script>
+{% endblock %}

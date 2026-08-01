@@ -1,0 +1,55 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ title }} — SYLVALINE Ventures{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="fade-up" style="max-width:600px;margin:0 auto;">
+  <div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+      <a href="javascript:history.back()" class="icon-btn"><i class="bi bi-arrow-left"></i></a>
+      <div>
+        <div class="page-header-title">{{ title }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-card p-4">
+    <form method="post" novalidate>
+      {% csrf_token %}
+      {% for field in form %}
+      <div class="mb-3">
+        <label for="{{ field.id_for_label }}" class="form-label">
+          {{ field.label }}
+          {% if field.field.required %}<span style="color:var(--accent-3);margin-left:3px;">*</span>{% endif %}
+        </label>
+        {{ field }}
+        {% if field.errors %}
+        <div style="font-size:12px;color:var(--accent-3);margin-top:4px;">
+          {% for error in field.errors %}{{ error }}{% endfor %}
+        </div>
+        {% endif %}
+        {% if field.help_text %}
+        <div style="font-size:12px;color:var(--text-3);margin-top:4px;">{{ field.help_text }}</div>
+        {% endif %}
+      </div>
+      {% endfor %}
+
+      <div class="divider"></div>
+
+      <div class="d-flex gap-3">
+        <button type="submit" class="btn-sv btn-sv-primary flex-1 justify-content-center">
+          <i class="bi bi-check-lg"></i> Save
+        </button>
+        <a href="javascript:history.back()" class="btn-sv btn-sv-glass flex-1 justify-content-center">
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .flex-1 { flex: 1; }
+  select option { background: var(--bg-2); color: var(--text); }
+</style>
+{% endblock %}

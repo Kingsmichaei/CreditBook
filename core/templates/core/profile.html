@@ -1,0 +1,51 @@
+{% extends 'core/base.html' %}
+{% block title %}Profile — CreditBook{% endblock %}
+{% block page_title %}Profile{% endblock %}
+
+{% block content %}
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card-sv p-4">
+      <div class="d-flex align-items-center justify-content-between mb-4">
+        <div>
+          <h4 class="fw-bold mb-1">Business profile</h4>
+          <p class="text-muted mb-0">Update your business details and account settings.</p>
+        </div>
+        <div class="avatar" style="width:48px;height:48px;">{{ request.user.username|slice:':1'|upper }}</div>
+      </div>
+      <form method="post">
+        {% csrf_token %}
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Business name</label>
+            {{ form.business_name }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Currency</label>
+            {{ form.currency }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Email</label>
+            {{ form.email }}
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Phone</label>
+            {{ form.phone }}
+          </div>
+        </div>
+        <button type="submit" class="btn-sv btn-sv-primary mt-4">Save changes</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card-sv p-4">
+      <h5 class="fw-bold mb-3">Account control</h5>
+      <p class="text-muted mb-4">Delete your account and workspace. A verification step will be required before the action completes.</p>
+      <a href="{% url 'delete_account' %}" class="btn-sv btn-sv-danger w-100 justify-content-center">
+        <i class="bi bi-trash3"></i> Delete business account
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

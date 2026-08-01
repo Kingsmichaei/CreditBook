@@ -1,0 +1,180 @@
+{% extends 'core/base.html' %}
+{% block title %}{{ customer.name }} — SYLVALINE Ventures{% endblock %}
+{% block page_title %}{{ customer.name }}{% endblock %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+      <a href="{% url 'customers_list' %}" class="icon-btn">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      <div>
+        <div class="page-header-title">{{ customer.name }}</div>
+        <div class="page-header-sub">Customer since {{ customer.created_at|date:"M j, Y" }}</div>
+      </div>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'customer_edit' customer.pk %}" class="btn-sv btn-sv-glass">
+        <i class="bi bi-pencil"></i> Edit
+      </a>
+      <a href="{% url 'customer_delete' customer.pk %}" class="btn-sv btn-sv-danger">
+        <i class="bi bi-trash"></i>
+      </a>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-5">
+      <div class="glass-card p-4">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <div class="avatar" style="width:56px;height:56px;font-size:22px;">{{ customer.name|slice:":1"|upper }}</div>
+          <div>
+            <div style="font-family:var(--font-display);font-weight:700;font-size:18px;">{{ customer.name }}</div>
+            {% if customer.total_debt > 0 %}
+            <span class="sv-badge badge-red">Owes ₦{{ customer.total_debt|floatformat:0 }}</span>
+            {% else %}
+            <span class="sv-badge badge-green"><i class="bi bi-check-circle"></i> No Debt</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if customer.phone %}
+        <div class="d-flex align-items-center gap-2 mb-2" style="font-size:14px;">
+          <i class="bi bi-telephone" style="color:var(--accent);width:20px;"></i>
+          <span>{{ customer.phone }}</span>
+          <a href="https://wa.me/{{ customer.whatsapp_number }}" target="_blank" class="sv-badge badge-green ms-auto">
+            <i class="bi bi-whatsapp"></i> WhatsApp
+          </a>
+        </div>
+        {% endif %}
+        {% if customer.email %}
+        <div class="d-flex align-items-center gap-2 mb-2" style="font-size:14px;">
+          <i class="bi bi-envelope" style="color:var(--accent-blue);width:20px;"></i>
+          <span>{{ customer.email }}</span>
+        </div>
+        {% endif %}
+        {% if customer.address %}
+        <div class="d-flex align-items-start gap-2 mb-2" style="font-size:14px;">
+          <i class="bi bi-geo-alt" style="color:var(--accent-2);width:20px;margin-top:2px;"></i>
+          <span>{{ customer.address }}</span>
+        </div>
+        {% endif %}
+
+        {% if customer.notes %}
+        <div class="divider"></div>
+        <p style="font-size:13px;color:var(--text-2);">{{ customer.notes }}</p>
+        {% endif %}
+
+        {% if customer.total_debt > 0 %}
+        <div class="divider"></div>
+        <a href="https://wa.me/{{ customer.whatsapp_number }}?text=Hello+{{ customer.name|urlencode }},+this+is+a+reminder+from+Complete+SYLVALINE+Ventures.+Your+outstanding+balance+is+%E2%82%A6{{ customer.total_debt|floatformat:0 }}.+Please+make+payment+at+your+earliest+convenience.+Thank+you." target="_blank" class="btn-sv btn-sv-whatsapp w-100 justify-content-center">
+          <i class="bi bi-whatsapp"></i> Send Debt Reminder on WhatsApp
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="col-12 col-md-7">
+      <div class="row g-3 mb-3">
+        <div class="col-6">
+          <div class="stat-card green p-3">
+            <div class="stat-icon green mb-2" style="width:36px;height:36px;border-radius:10px;font-size:14px;">
+              <i class="bi bi-bag"></i>
+            </div>
+            <div class="stat-value" style="font-size:20px;">₦{{ customer.total_purchases|floatformat:0 }}</div>
+            <div class="stat-label">Total Purchases</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="stat-card red p-3">
+            <div class="stat-icon red mb-2" style="width:36px;height:36px;border-radius:10px;font-size:14px;">
+              <i class="bi bi-exclamation-circle"></i>
+            </div>
+            <div class="stat-value" style="font-size:20px;">₦{{ customer.total_debt|floatformat:0 }}</div>
+            <div class="stat-label">Outstanding Debt</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Debt History -->
+      <div class="glass-card mb-3">
+        <div class="d-flex align-items-center justify-content-between p-3 pb-0">
+          <div style="font-family:var(--font-display);font-weight:700;font-size:15px;">Debt History</div>
+          <a href="{% url 'debt_add' %}" class="btn-sv btn-sv-glass" style="font-size:12px;padding:5px 10px;">+ Add</a>
+        </div>
+        <div class="p-3">
+          {% if debts %}
+          {% for debt in debts %}
+          <div class="d-flex align-items-center gap-3 p-2 rounded-3 mb-1" style="background:var(--surface);">
+            <div>
+              <div style="font-weight:600;font-size:14px;">₦{{ debt.amount|floatformat:0 }}</div>
+              <div style="font-size:12px;color:var(--text-3);">{{ debt.created_at|date:"M j, Y" }}</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:13px;color:var(--text-2);">{{ debt.description|truncatechars:40|default:"—" }}</div>
+              {% if debt.due_date %}<div style="font-size:11px;color:var(--text-3);">Due: {{ debt.due_date }}</div>{% endif %}
+            </div>
+            {% if debt.is_paid %}
+            <span class="sv-badge badge-green"><i class="bi bi-check"></i> Paid</span>
+            {% else %}
+            <div class="d-flex gap-1">
+              {% if debt.is_overdue %}<span class="sv-badge badge-red">Overdue</span>{% endif %}
+              <a href="{% url 'debt_mark_paid' debt.pk %}" class="sv-badge badge-amber" title="Mark paid">
+                <i class="bi bi-check-lg"></i>
+              </a>
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+          {% else %}
+          <p style="color:var(--text-3);font-size:14px;text-align:center;padding:20px;">No debt records.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sales History -->
+  <div class="glass-card">
+    <div class="d-flex align-items-center justify-content-between p-4 pb-0">
+      <div style="font-family:var(--font-display);font-weight:700;font-size:16px;">Purchase History</div>
+      <span class="sv-badge badge-gray">{{ sales.count }} transaction{{ sales.count|pluralize }}</span>
+    </div>
+    <div class="table-wrapper m-3" style="border:none;">
+      {% if sales %}
+      <table class="sv-table">
+        <thead>
+          <tr>
+            <th>Product / Service</th>
+            <th>Qty</th>
+            <th>Unit Price</th>
+            <th>Total</th>
+            <th>Payment</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for sale in sales %}
+          <tr>
+            <td style="font-weight:600;">{{ sale.product }}</td>
+            <td>{{ sale.quantity }}</td>
+            <td>₦{{ sale.unit_price|floatformat:0 }}</td>
+            <td style="font-family:var(--font-display);font-weight:700;color:var(--accent);">₦{{ sale.total|floatformat:0 }}</td>
+            <td>
+              <span class="sv-badge {% if sale.payment_method == 'cash' %}badge-green{% elif sale.payment_method == 'credit' %}badge-red{% else %}badge-blue{% endif %}">
+                {{ sale.get_payment_method_display }}
+              </span>
+            </td>
+            <td style="color:var(--text-2);">{{ sale.date }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty-state" style="padding:30px;"><div class="empty-state-sub">No sales recorded for this customer.</div></div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

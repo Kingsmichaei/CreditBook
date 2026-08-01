@@ -1,0 +1,97 @@
+{% extends 'core/base.html' %}
+{% block title %}Sales — SYLVALINE Ventures{% endblock %}
+{% block page_title %}Sales Records{% endblock %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="page-header">
+    <div>
+      <div class="page-header-title">Sales Records</div>
+      <div class="page-header-sub">Total: <span style="color:var(--accent);font-weight:700;">₦{{ total|floatformat:0 }}</span></div>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{% url 'sales_export' %}{% if q %}?q={{ q }}{% endif %}" class="btn-sv btn-sv-secondary">
+        <i class="bi bi-download"></i> Export CSV
+      </a>
+      <a href="{% url 'sale_add' %}" class="btn-sv btn-sv-primary">
+        <i class="bi bi-plus-circle-fill"></i> Record Sale
+      </a>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="glass-card p-3 mb-4">
+    <form method="get">
+      <div class="search-bar">
+        <span class="search-icon"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search by product or customer...">
+        {% if q %}<a href="{% url 'sales_list' %}" class="icon-btn" style="border-radius:0;border:none;border-left:1px solid var(--border);"><i class="bi bi-x"></i></a>{% endif %}
+      </div>
+    </form>
+  </div>
+
+  {% if sales %}
+  <div class="table-wrapper">
+    <table class="sv-table">
+      <thead>
+        <tr>
+          <th>Product / Service</th>
+          <th>Customer</th>
+          <th>Qty</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+          <th>Payment</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sale in sales %}
+        <tr>
+          <td>
+            <div style="font-weight:600;">{{ sale.product }}</div>
+            {% if sale.notes %}<div style="font-size:12px;color:var(--text-3);">{{ sale.notes|truncatechars:30 }}</div>{% endif %}
+          </td>
+          <td>
+            {% if sale.customer %}
+            <a href="{% url 'customer_detail' sale.customer.pk %}" style="color:var(--accent-blue);text-decoration:none;font-weight:500;">{{ sale.customer.name }}</a>
+            {% else %}
+            <span style="color:var(--text-3);">Walk-in</span>
+            {% endif %}
+          </td>
+          <td>{{ sale.quantity }}</td>
+          <td>₦{{ sale.unit_price|floatformat:0 }}</td>
+          <td style="font-family:var(--font-display);font-weight:700;color:var(--accent);">₦{{ sale.total|floatformat:0 }}</td>
+          <td>
+            <span class="sv-badge {% if sale.payment_method == 'cash' %}badge-green{% elif sale.payment_method == 'credit' %}badge-red{% elif sale.payment_method == 'transfer' %}badge-blue{% else %}badge-amber{% endif %}">
+              {{ sale.get_payment_method_display }}
+            </span>
+          </td>
+          <td style="color:var(--text-2);white-space:nowrap;">{{ sale.date }}</td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="{% url 'sale_edit' sale.pk %}" class="icon-btn" style="width:30px;height:30px;font-size:13px;" title="Edit">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'sale_delete' sale.pk %}" class="icon-btn" style="width:30px;height:30px;font-size:13px;color:var(--accent-3);" title="Delete">
+                <i class="bi bi-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="glass-card empty-state">
+    <div class="empty-state-icon"><i class="bi bi-bag-x"></i></div>
+    <div class="empty-state-title">No sales recorded</div>
+    <div class="empty-state-sub mb-3">Start recording your sales transactions.</div>
+    <a href="{% url 'sale_add' %}" class="btn-sv btn-sv-primary">
+      <i class="bi bi-plus-circle"></i> Record First Sale
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

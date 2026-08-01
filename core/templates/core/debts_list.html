@@ -1,0 +1,127 @@
+{% extends 'core/base.html' %}
+{% block title %}Debts — SYLVALINE Ventures{% endblock %}
+{% block page_title %}Debt Management{% endblock %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="page-header">
+    <div>
+      <div class="page-header-title">Debt Management</div>
+      <div class="page-header-sub">
+        Total: <span style="color:var(--accent-3);font-weight:700;">₦{{ total|floatformat:0 }}</span>
+      </div>
+    </div>
+    <a href="{% url 'debt_add' %}" class="btn-sv btn-sv-primary">
+      <i class="bi bi-plus-circle-fill"></i> Record Debt
+    </a>
+  </div>
+
+  <!-- Filter Tabs -->
+  <div class="glass-card p-2 mb-4 d-flex gap-2 flex-wrap">
+    <a href="?filter=unpaid" class="btn-sv {% if filter_type == 'unpaid' %}btn-sv-primary{% else %}btn-sv-glass{% endif %}" style="font-size:13px;padding:8px 16px;">
+      <i class="bi bi-clock"></i> Unpaid
+    </a>
+    <a href="?filter=overdue" class="btn-sv {% if filter_type == 'overdue' %}btn-sv-danger{% else %}btn-sv-glass{% endif %}" style="font-size:13px;padding:8px 16px;">
+      <i class="bi bi-exclamation-triangle"></i> Overdue
+    </a>
+    <a href="?filter=paid" class="btn-sv {% if filter_type == 'paid' %}btn-sv-glass{% else %}btn-sv-glass{% endif %}" style="font-size:13px;padding:8px 16px;{% if filter_type == 'paid' %}border-color:var(--accent);color:var(--accent);{% endif %}">
+      <i class="bi bi-check-circle"></i> Paid
+    </a>
+    <a href="?filter=all" class="btn-sv btn-sv-glass" style="font-size:13px;padding:8px 16px;{% if filter_type == 'all' %}border-color:var(--text-2);{% endif %}">
+      All
+    </a>
+  </div>
+
+  {% if debts %}
+  <div class="row g-3">
+    {% for debt in debts %}
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="glass-card p-4" style="border-left:3px solid {% if debt.is_paid %}var(--accent){% elif debt.is_overdue %}var(--accent-3){% else %}var(--accent-2){% endif %};">
+        <div class="d-flex align-items-start justify-content-between mb-3">
+          <div class="d-flex align-items-center gap-2">
+            <div class="avatar" style="width:40px;height:40px;font-size:15px;">{{ debt.customer.name|slice:":1"|upper }}</div>
+            <div>
+              <a href="{% url 'customer_detail' debt.customer.pk %}" style="font-weight:700;font-size:15px;color:var(--text);text-decoration:none;">
+                {{ debt.customer.name }}
+              </a>
+              <div style="font-size:12px;color:var(--text-3);">{{ debt.created_at|date:"M j, Y" }}</div>
+            </div>
+          </div>
+          <div style="font-family:var(--font-display);font-weight:800;font-size:18px;color:{% if debt.is_paid %}var(--accent){% else %}var(--accent-3){% endif %};">
+            ₦{{ debt.amount|floatformat:0 }}
+          </div>
+        </div>
+
+        {% if debt.description %}
+        <p style="font-size:13px;color:var(--text-2);margin-bottom:12px;line-height:1.5;">
+          {{ debt.description|truncatechars:80 }}
+        </p>
+        {% endif %}
+
+        <div class="d-flex align-items-center gap-2 mb-3" style="flex-wrap:wrap;">
+          {% if debt.is_paid %}
+          <span class="sv-badge badge-green"><i class="bi bi-check-circle"></i> Paid {{ debt.paid_date }}</span>
+          {% elif debt.is_overdue %}
+          <span class="sv-badge badge-red"><i class="bi bi-clock-fill"></i> Overdue</span>
+          {% else %}
+          <span class="sv-badge badge-amber"><i class="bi bi-hourglass-split"></i> Pending</span>
+          {% endif %}
+          {% if debt.due_date and not debt.is_paid %}
+          <span class="sv-badge badge-gray">Due: {{ debt.due_date }}</span>
+          {% endif %}
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+          {% if not debt.is_paid %}
+          <a href="{% url 'debt_mark_paid' debt.pk %}" class="btn-sv btn-sv-glass" style="font-size:12px;padding:7px 12px;color:var(--accent);border-color:rgba(0,229,160,0.2);">
+            <i class="bi bi-check-lg"></i> Mark Paid
+          </a>
+          {% endif %}
+
+          {% if debt.customer.phone and not debt.is_paid %}
+          <a href="https://wa.me/{{ debt.customer.whatsapp_number }}?text=Hello+{{ debt.customer.name|urlencode }}%2C+this+is+a+friendly+reminder+from+*Complete+SYLVALINE+Ventures*.+%0A%0AYour+outstanding+balance+is+*%E2%82%A6{{ debt.amount|floatformat:0 }}*{% if debt.description %}+for+{{ debt.description|urlencode }}{% endif %}.+%0A%0APlease+make+payment   +at+your+earliest+convenience.+Thank+you+for+your+patronage+%F0%9F%99%8F" target="_blank" class="btn-sv btn-sv-whatsapp" style="font-size:12px;padding:7px 12px;">
+            <i class="bi bi-whatsapp"></i> Remind
+          </a>
+          {% endif %}
+
+          <div class="d-flex gap-1 ms-auto">
+            <a href="{% url 'debt_edit' debt.pk %}" class="icon-btn" style="width:30px;height:30px;font-size:13px;" title="Edit">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <a href="{% url 'debt_delete' debt.pk %}" class="icon-btn" style="width:30px;height:30px;font-size:13px;color:var(--accent-3);" title="Delete">
+              <i class="bi bi-trash"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="glass-card empty-state">
+    <div class="empty-state-icon">
+      {% if filter_type == 'paid' %}<i class="bi bi-check-circle"></i>
+      {% elif filter_type == 'overdue' %}<i class="bi bi-clock-history"></i>
+      {% else %}<i class="bi bi-emoji-smile"></i>{% endif %}
+    </div>
+    <div class="empty-state-title">
+      {% if filter_type == 'paid' %}No paid debts yet
+      {% elif filter_type == 'overdue' %}No overdue debts
+      {% else %}No unpaid debts{% endif %}
+    </div>
+    <div class="empty-state-sub mb-3">
+      {% if filter_type == 'overdue' %}Great news — all debts are on time!
+      {% elif filter_type == 'paid' %}Paid debts will appear here.
+      {% else %}All accounts are settled!{% endif %}
+    </div>
+    {% if filter_type != 'paid' %}
+    <a href="{% url 'debt_add' %}" class="btn-sv btn-sv-primary">
+      <i class="bi bi-plus-circle"></i> Record Debt
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,741 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <link rel="icon" type="image/png" sizes="96x96" href="{% static 'icons/favicon-96x96.png' %}">
+  <link rel="icon" href="{% static 'icons/favicon.svg' %}" type="image/svg+xml" sizes="any">
+  <link rel="icon" href="{% static 'icons/favicon.ico' %}">
+  <link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
+  <link rel="manifest" href="{% static 'icons/site.webmanifest' %}">
+  <title>Create Your Business | CreditBook</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    /* ══════════════════════════════════════════
+       TOKENS
+    ══════════════════════════════════════════ */
+    :root {
+      --brand:      #2563EB;
+      --brand-2:    #22C55E;
+      --brand-grad: linear-gradient(135deg, #2563EB, #22C55E);
+      --danger:     #f43f5e;
+      --font-d: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      --font-b: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      --ease: 0.28s cubic-bezier(.4,0,.2,1);
+      --r:    22px;
+      --r-sm: 14px;
+      --r-xs: 11px;
+    }
+
+    [data-theme="dark"] {
+      --bg:          #060d1a;
+      --surface:     rgba(255,255,255,.04);
+      --surface-2:   rgba(255,255,255,.07);
+      --surface-h:   rgba(255,255,255,.1);
+      --border:      rgba(255,255,255,.09);
+      --border-f:    rgba(37,99,235,.55);
+      --text:        #eef2ff;
+      --text-2:      rgba(238,242,255,.63);
+      --text-3:      rgba(238,242,255,.35);
+      --glass:       rgba(8,14,28,.82);
+      --blur:        blur(30px) saturate(180%);
+      --shadow:      0 28px 70px rgba(0,0,0,.55);
+      --input-bg:    rgba(255,255,255,.05);
+      --input-bg-f:  rgba(255,255,255,.08);
+      --mesh-a:      rgba(37,99,235,.12);
+      --mesh-b:      rgba(34,197,94,.08);
+    }
+
+    [data-theme="light"] {
+      --bg:          #f0f4fb;
+      --surface:     rgba(255,255,255,.72);
+      --surface-2:   rgba(255,255,255,.9);
+      --surface-h:   rgba(255,255,255,.98);
+      --border:      rgba(0,0,0,.08);
+      --border-f:    rgba(37,99,235,.55);
+      --text:        #0a1628;
+      --text-2:      rgba(10,22,40,.63);
+      --text-3:      rgba(10,22,40,.37);
+      --glass:       rgba(240,244,251,.85);
+      --blur:        blur(30px) saturate(180%);
+      --shadow:      0 28px 70px rgba(37,99,235,.1);
+      --input-bg:    rgba(255,255,255,.9);
+      --input-bg-f:  rgba(255,255,255,1);
+      --mesh-a:      rgba(37,99,235,.07);
+      --mesh-b:      rgba(34,197,94,.05);
+    }
+
+    /* ══════════════════════════════════════════
+       BASE
+    ══════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { height: 100%; }
+
+    body {
+      font-family: var(--font-b);
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background var(--ease), color var(--ease);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 75% 55% at -5% 0%,  var(--mesh-a) 0%, transparent 55%),
+        radial-gradient(ellipse 55% 45% at 105% 100%, var(--mesh-b) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Floating orb */
+    .orb {
+      position: fixed;
+      border-radius: 50%;
+      filter: blur(90px);
+      pointer-events: none;
+      animation: float 9s ease-in-out infinite;
+      z-index: 0;
+    }
+    .orb-1 { width: 380px; height: 380px; top: -80px;  left: -80px;  background: rgba(37,99,235,.07); animation-delay: 0s; }
+    .orb-2 { width: 280px; height: 280px; bottom: -40px; right: -40px; background: rgba(34,197,94,.06); animation-delay: 4s; }
+
+    @keyframes float {
+      0%,100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-18px) scale(1.04); }
+    }
+
+    /* ══════════════════════════════════════════
+       THEME TOGGLE PILL
+    ══════════════════════════════════════════ */
+    .theme-pill {
+      position: fixed;
+      top: 18px; right: 18px;
+      z-index: 200;
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 7px 14px;
+      display: flex; align-items: center; gap: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: var(--font-b);
+      font-weight: 500;
+      color: var(--text-2);
+      transition: all var(--ease);
+    }
+    .theme-pill:hover { color: var(--text); background: var(--surface-h); }
+
+    /* ══════════════════════════════════════════
+       LAYOUT
+    ══════════════════════════════════════════ */
+    .page-wrap {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      position: relative;
+      z-index: 1;
+    }
+
+    @media (max-width: 900px) {
+      .page-wrap { grid-template-columns: 1fr; }
+      .left-panel { display: none; }
+    }
+
+    /* ══════════════════════════════════════════
+       LEFT PANEL (Branding)
+    ══════════════════════════════════════════ */
+    .left-panel {
+      padding: 60px 56px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .panel-logo {
+      font-family: var(--font-d);
+      font-size: 1.75rem;
+      font-weight: 800;
+      background: var(--brand-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-decoration: none;
+      display: inline-block;
+      margin-bottom: 48px;
+      letter-spacing: -.02em;
+    }
+
+    .panel-tagline {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(37,99,235,.1);
+      border: 1px solid rgba(37,99,235,.2);
+      color: #6ea8fe;
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      margin-bottom: 18px;
+    }
+    [data-theme="light"] .panel-tagline { color: var(--brand); }
+
+    .panel-title {
+      font-family: var(--font-d);
+      font-size: clamp(2rem, 2.8vw, 2.8rem);
+      font-weight: 800;
+      color: var(--text);
+      line-height: 1.1;
+      letter-spacing: -.03em;
+      margin-bottom: 18px;
+    }
+
+    .panel-desc {
+      font-size: 15px;
+      color: var(--text-2);
+      line-height: 1.75;
+      margin-bottom: 36px;
+    }
+
+    .panel-features { display: flex; flex-direction: column; gap: 14px; }
+
+    .panel-feat {
+      display: flex; align-items: center; gap: 12px;
+      font-size: 14px;
+      color: var(--text-2);
+    }
+    .panel-feat-icon {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+    .panel-feat-icon.g { background: rgba(34,197,94,.12); color: var(--brand-2); }
+    .panel-feat-icon.b { background: rgba(37,99,235,.12);  color: #6ea8fe; }
+    .panel-feat-icon.y { background: rgba(234,179,8,.12);  color: #EAB308; }
+    .panel-feat-icon.p { background: rgba(139,92,246,.12); color: #8B5CF6; }
+
+    .trial-box {
+      margin-top: 40px;
+      background: rgba(34,197,94,.07);
+      border: 1px solid rgba(34,197,94,.18);
+      border-radius: 16px;
+      padding: 20px 22px;
+    }
+    .trial-box-title {
+      font-family: var(--font-d);
+      font-size: 15px; font-weight: 700;
+      color: var(--brand-2);
+      margin-bottom: 6px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .trial-box-desc { font-size: 13px; color: var(--text-2); line-height: 1.6; margin: 0; }
+
+    /* ══════════════════════════════════════════
+       RIGHT PANEL (Form)
+    ══════════════════════════════════════════ */
+    .right-panel {
+      padding: 40px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    @media (max-width: 576px) {
+      .right-panel { padding: 40px 20px; }
+    }
+
+    .form-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 40px 36px;
+      box-shadow: var(--shadow);
+    }
+
+    @media (max-width: 576px) {
+      .form-card { padding: 32px 22px; }
+    }
+
+    /* Brand mark inside form */
+    .form-brand {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 28px;
+    }
+    .form-brand-logo {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      background: var(--brand-grad);
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--font-d);
+      font-weight: 800; font-size: 17px;
+      color: #fff;
+      box-shadow: 0 6px 18px rgba(37,99,235,.35);
+      flex-shrink: 0;
+    }
+    .form-brand-text {
+      font-family: var(--font-d);
+      font-size: 16px; font-weight: 800;
+      background: var(--brand-grad);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -.02em;
+    }
+
+    .form-title {
+      font-family: var(--font-d);
+      font-size: 22px; font-weight: 800;
+      color: var(--text);
+      letter-spacing: -.02em;
+      margin-bottom: 4px;
+    }
+    .form-sub { font-size: 14px; color: var(--text-2); margin-bottom: 28px; }
+
+    /* Error alert */
+    .error-alert {
+      background: rgba(244,63,94,.1);
+      border: 1px solid rgba(244,63,94,.25);
+      border-radius: var(--r-xs);
+      padding: 12px 14px;
+      font-size: 13px;
+      color: var(--danger);
+      display: flex; align-items: flex-start; gap: 9px;
+      margin-bottom: 20px;
+    }
+
+    /* Field group */
+    .field-group { margin-bottom: 16px; }
+
+    .field-label {
+      display: block;
+      font-size: 13px; font-weight: 600;
+      color: var(--text-2);
+      margin-bottom: 7px;
+    }
+
+    .input-wrap { position: relative; }
+
+    .input-icon {
+      position: absolute;
+      left: 13px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-3);
+      font-size: 15px;
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    /* Target Django-rendered form controls */
+    .input-wrap input,
+    .input-wrap select,
+    .input-wrap textarea,
+    .input-wrap .form-control {
+      width: 100%;
+      background: var(--input-bg) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: var(--r-xs) !important;
+      color: var(--text) !important;
+      font-family: var(--font-b) !important;
+      font-size: 14px !important;
+      padding: 12px 14px 12px 40px !important;
+      outline: none;
+      transition: all var(--ease);
+      -webkit-appearance: none;
+    }
+
+    .input-wrap input:focus,
+    .input-wrap select:focus,
+    .input-wrap textarea:focus,
+    .input-wrap .form-control:focus {
+      border-color: var(--border-f) !important;
+      box-shadow: 0 0 0 3px rgba(37,99,235,.12) !important;
+      background: var(--input-bg-f) !important;
+    }
+
+    .input-wrap input::placeholder,
+    .input-wrap .form-control::placeholder { color: var(--text-3) !important; }
+
+    /* Password toggle */
+    .pw-toggle {
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      color: var(--text-3);
+      cursor: pointer; font-size: 15px;
+      transition: color var(--ease);
+      z-index: 2;
+    }
+    .pw-toggle:hover { color: var(--text-2); }
+
+    .field-error {
+      font-size: 12px;
+      color: var(--danger);
+      margin-top: 5px;
+      display: flex; align-items: center; gap: 5px;
+    }
+
+    /* Row for two inputs side by side */
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 480px) { .field-row { grid-template-columns: 1fr; } }
+
+    /* Submit button */
+    .btn-submit {
+      width: 100%;
+      padding: 13px;
+      background: var(--brand-grad);
+      border: none;
+      border-radius: var(--r-sm);
+      color: #fff;
+      font-family: var(--font-d);
+      font-size: 15px; font-weight: 700;
+      cursor: pointer;
+      transition: all var(--ease);
+      box-shadow: 0 6px 20px rgba(37,99,235,.3);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      margin-top: 6px;
+    }
+    .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 12px 30px rgba(37,99,235,.4); }
+    .btn-submit:active { transform: translateY(0); }
+
+    /* Divider */
+    .form-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 20px 0;
+    }
+
+    /* Footer links */
+    .form-footer-text { font-size: 13px; color: var(--text-3); text-align: center; line-height: 1.6; }
+    .form-footer-text a { color: var(--brand); text-decoration: none; font-weight: 600; transition: color var(--ease); }
+    .form-footer-text a:hover { color: var(--brand-2); }
+
+    /* Trust badges */
+    .trust-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; text-align: center; }
+    .trust-item { font-size: 12px; color: var(--text-3); }
+    .trust-item i { font-size: 20px; display: block; margin-bottom: 5px; }
+  </style>
+</head>
+
+<body>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
+
+  <!-- Theme pill -->
+  <button class="theme-pill" id="themeToggle">
+    <i class="bi bi-moon-fill" id="themeIcon"></i>
+    <span id="themeLabel">Dark</span>
+  </button>
+
+  <div class="page-wrap">
+
+    <!-- ══ LEFT PANEL ══════════════════════════ -->
+    <div class="left-panel">
+      <div class="panel-tagline">
+        <i class="bi bi-stars"></i> Multi-Business Platform
+      </div>
+
+      <h1 class="panel-title">Create Your Business Workspace</h1>
+
+      <p class="panel-desc">
+        Start managing customer debts, sales, expenses and business records
+        from one secure and powerful dashboard.
+      </p>
+
+      <div class="panel-features">
+        <div class="panel-feat">
+          <div class="panel-feat-icon g"><i class="bi bi-check-circle-fill"></i></div>
+          Track customer debts effortlessly
+        </div>
+        <div class="panel-feat">
+          <div class="panel-feat-icon b"><i class="bi bi-cash-stack"></i></div>
+          Record sales and expenses
+        </div>
+        <div class="panel-feat">
+          <div class="panel-feat-icon g"><i class="bi bi-whatsapp"></i></div>
+          Send WhatsApp payment reminders
+        </div>
+        <div class="panel-feat">
+          <div class="panel-feat-icon p"><i class="bi bi-shield-lock-fill"></i></div>
+          Secure cloud storage
+        </div>
+      </div>
+
+      <div class="trial-box">
+        <div class="trial-box-title">
+          <i class="bi bi-gift-fill"></i> 14-Day Free Trial
+        </div>
+        <p class="trial-box-desc">
+          No credit card required. Access every feature from day one — unlimited customers, records, and WhatsApp reminders.
+        </p>
+      </div>
+    </div>
+
+    <!-- ══ RIGHT PANEL (Form) ══════════════════ -->
+    <div class="right-panel">
+      <div class="form-card">
+
+        <!-- Brand on mobile -->
+        <div class="form-brand">
+          <div class="form-brand-text">CreditBook</div>
+        </div>
+
+        <div class="form-title">Let's Get Started</div>
+        <div class="form-sub">Create your account in less than two minutes.</div>
+
+        <!-- Non-field errors -->
+        {% if form.non_field_errors %}
+        <div class="error-alert">
+          <i class="bi bi-exclamation-circle-fill" style="flex-shrink:0;margin-top:1px;"></i>
+          <div>{{ form.non_field_errors }}</div>
+        </div>
+        {% endif %}
+
+        <form method="post" novalidate>
+          {% csrf_token %}
+
+          <!-- Business Name -->
+          <div class="field-group">
+            <label class="field-label" for="{{ form.business_name.id_for_label }}">
+              Business Name *
+            </label>
+            <div class="input-wrap">
+              <i class="bi bi-buildings input-icon"></i>
+              {{ form.business_name }}
+            </div>
+            {% if form.business_name.errors %}
+            <div class="field-error">
+              <i class="bi bi-exclamation-circle-fill"></i>
+              {{ form.business_name.errors|striptags }}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Owner Name -->
+          <div class="field-group">
+            <label class="field-label" for="{{ form.owner_name.id_for_label }}">
+              Owner's Full Name *
+            </label>
+            <div class="input-wrap">
+              <i class="bi bi-person-badge input-icon"></i>
+              {{ form.owner_name }}
+            </div>
+            {% if form.owner_name.errors %}
+            <div class="field-error">
+              <i class="bi bi-exclamation-circle-fill"></i>
+              {{ form.owner_name.errors|striptags }}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Email + Phone in a row -->
+          <div class="field-row">
+            <div class="field-group" style="margin-bottom:0;">
+              <label class="field-label" for="{{ form.email.id_for_label }}">
+                Email Address *
+              </label>
+              <div class="input-wrap">
+                <i class="bi bi-envelope input-icon"></i>
+                {{ form.email }}
+              </div>
+              {% if form.email.errors %}
+              <div class="field-error">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                {{ form.email.errors|striptags }}
+              </div>
+              {% endif %}
+            </div>
+
+            <div class="field-group" style="margin-bottom:0;">
+              <label class="field-label" for="{{ form.phone.id_for_label }}">
+                Phone Number
+              </label>
+              <div class="input-wrap">
+                <i class="bi bi-phone input-icon"></i>
+                {{ form.phone }}
+              </div>
+              {% if form.phone.errors %}
+              <div class="field-error">
+                <i class="bi bi-exclamation-circle-fill"></i>
+                {{ form.phone.errors|striptags }}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div style="margin-bottom:16px;"></div>
+
+          <!-- Password -->
+          <div class="field-group">
+            <label class="field-label" for="{{ form.password1.id_for_label }}">
+              Create Password *
+            </label>
+            <div class="input-wrap">
+              <i class="bi bi-lock input-icon"></i>
+              {{ form.password1 }}
+              <button type="button" class="pw-toggle" onclick="togglePw('pw1','eye1')">
+                <i class="bi bi-eye-fill" id="eye1"></i>
+              </button>
+            </div>
+            {% if form.password1.errors %}
+            <div class="field-error">
+              <i class="bi bi-exclamation-circle-fill"></i>
+              {{ form.password1.errors|striptags }}
+            </div>
+            {% endif %}
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="field-group">
+            <label class="field-label" for="{{ form.password2.id_for_label }}">
+              Confirm Password *
+            </label>
+            <div class="input-wrap">
+              <i class="bi bi-shield-lock input-icon"></i>
+              {{ form.password2 }}
+              <button type="button" class="pw-toggle" onclick="togglePw('pw2','eye2')">
+                <i class="bi bi-eye-fill" id="eye2"></i>
+              </button>
+            </div>
+            {% if form.password2.errors %}
+            <div class="field-error">
+              <i class="bi bi-exclamation-circle-fill"></i>
+              {{ form.password2.errors|striptags }}
+            </div>
+            {% endif %}
+          </div>
+
+          <button type="submit" class="btn-submit">
+            <i class="bi bi-building-add"></i>
+            Create My Workspace
+          </button>
+
+        </form>
+
+        <hr class="form-divider">
+
+        <p class="form-footer-text mb-3">
+          Already have an account?
+          <a href="{% url 'login' %}">Sign In</a>
+        </p>
+
+        <p class="form-footer-text" style="font-size:12px;">
+          By creating an account you agree to our
+          <a href="#">Terms of Service</a>
+          and
+          <a href="#">Privacy Policy</a>.
+        </p>
+
+        <hr class="form-divider">
+
+        <div class="trust-row">
+          <div class="trust-item">
+            <i class="bi bi-shield-lock-fill" style="color:#22C55E;"></i>
+            Secure
+          </div>
+          <div class="trust-item">
+            <i class="bi bi-cloud-check-fill" style="color:#2563EB;"></i>
+            Cloud Backup
+          </div>
+          <div class="trust-item">
+            <i class="bi bi-headset" style="color:#EAB308;"></i>
+            Support
+          </div>
+        </div>
+
+      </div><!-- /form-card -->
+    </div><!-- /right-panel -->
+
+  </div><!-- /page-wrap -->
+
+  <script>
+    /* ── Theme ────────────────────────────────── */
+    const html  = document.documentElement;
+    const tog   = document.getElementById('themeToggle');
+    const icon  = document.getElementById('themeIcon');
+    const lbl   = document.getElementById('themeLabel');
+
+    function applyTheme(t) {
+      html.setAttribute('data-theme', t);
+      localStorage.setItem('bm-theme', t);
+      icon.className  = t === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+      lbl.textContent = t === 'dark' ? 'Dark' : 'Light';
+    }
+
+    applyTheme(localStorage.getItem('bm-theme') || 'dark');
+    tog.addEventListener('click', () => {
+      applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+    });
+
+    /* ── Password toggles ─────────────────────── */
+    function togglePw(inputId, eyeId) {
+      // Find by position in DOM since Django renders inputs without our IDs
+      const icons    = document.querySelectorAll('.pw-toggle');
+      const inputs   = document.querySelectorAll('.input-wrap input[type="password"], .input-wrap input[type="text"]');
+
+      // Map: pw1 → first password field, pw2 → second
+      const index    = inputId === 'pw1' ? 0 : 1;
+      const pwInputs = document.querySelectorAll('.input-wrap input');
+
+      // We need to find the correct input by scanning password-type inputs
+      let count = 0;
+      let target = null;
+      pwInputs.forEach(inp => {
+        if (inp.type === 'password' || (inp.type === 'text' && inp.closest('.input-wrap').querySelector('.pw-toggle'))) {
+          if (count === index) target = inp;
+          count++;
+        }
+      });
+
+      const eyeEl = document.getElementById(eyeId);
+      if (!target) return;
+      target.type = target.type === 'password' ? 'text' : 'password';
+      eyeEl.className = target.type === 'password' ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill';
+    }
+
+    /* ── Fix Django rendered input IDs for pw toggle ─ */
+    // More reliable: grab password inputs in order
+    document.addEventListener('DOMContentLoaded', () => {
+      const allInputs   = Array.from(document.querySelectorAll('.input-wrap input'));
+      const pwWraps     = document.querySelectorAll('.input-wrap');
+
+      // Override togglePw with reliable index-based approach
+      window.togglePw = function(inputId, eyeId) {
+        const idx   = inputId === 'pw1' ? 0 : 1;
+        const eyeEl = document.getElementById(eyeId);
+
+        // Find all inputs that have a pw-toggle sibling
+        const pwInputs = Array.from(document.querySelectorAll('.input-wrap')).filter(w =>
+          w.querySelector('.pw-toggle')
+        ).map(w => w.querySelector('input'));
+
+        const inp = pwInputs[idx];
+        if (!inp) return;
+        inp.type    = inp.type === 'password' ? 'text' : 'password';
+        eyeEl.className = inp.type === 'password' ? 'bi bi-eye-fill' : 'bi bi-eye-slash-fill';
+      };
+    });
+  </script>
+</body>
+</html>

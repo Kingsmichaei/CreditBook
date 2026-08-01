@@ -1,0 +1,90 @@
+{% extends 'core/base.html' %}
+{% block title %}Expenses — SYLVALINE Ventures{% endblock %}
+{% block page_title %}Expenses{% endblock %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="page-header">
+    <div>
+      <div class="page-header-title">Expenses</div>
+      <div class="page-header-sub">Total: <span style="color:var(--accent-3);font-weight:700;">₦{{ total|floatformat:0 }}</span></div>
+    </div>
+    <a href="{% url 'expense_add' %}" class="btn-sv btn-sv-primary">
+      <i class="bi bi-plus-circle-fill"></i> Log Expense
+    </a>
+  </div>
+
+  <!-- Category breakdown -->
+  {% if by_category %}
+  <div class="glass-card p-4 mb-4">
+    <div style="font-family:var(--font-display);font-weight:700;font-size:15px;margin-bottom:16px;">By Category</div>
+    <div class="row g-2">
+      {% for cat in by_category %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;">
+          <div style="font-size:12px;color:var(--text-3);margin-bottom:4px;">{{ cat.category|capfirst }}</div>
+          <div style="font-family:var(--font-display);font-weight:700;font-size:16px;color:var(--accent-2);">
+            ₦{{ cat.total|floatformat:0 }}
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Search -->
+  <div class="glass-card p-3 mb-4">
+    <form method="get">
+      <div class="search-bar">
+        <span class="search-icon"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search expenses...">
+        {% if q %}<a href="{% url 'expenses_list' %}" class="icon-btn" style="border-radius:0;border:none;border-left:1px solid var(--border);"><i class="bi bi-x"></i></a>{% endif %}
+      </div>
+    </form>
+  </div>
+
+  {% if expenses %}
+  <div class="table-wrapper">
+    <table class="sv-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for expense in expenses %}
+        <tr>
+          <td style="font-weight:600;">{{ expense.description }}</td>
+          <td><span class="sv-badge badge-amber">{{ expense.get_category_display }}</span></td>
+          <td style="font-family:var(--font-display);font-weight:700;color:var(--accent-3);">₦{{ expense.amount|floatformat:0 }}</td>
+          <td style="color:var(--text-2);">{{ expense.date }}</td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="{% url 'expense_edit' expense.pk %}" class="icon-btn" style="width:30px;height:30px;font-size:13px;">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'expense_delete' expense.pk %}" class="icon-btn" style="width:30px;height:30px;font-size:13px;color:var(--accent-3);">
+                <i class="bi bi-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="glass-card empty-state">
+    <div class="empty-state-icon"><i class="bi bi-wallet2"></i></div>
+    <div class="empty-state-title">No expenses logged</div>
+    <div class="empty-state-sub mb-3">Track your business expenses here.</div>
+    <a href="{% url 'expense_add' %}" class="btn-sv btn-sv-primary"><i class="bi bi-plus-circle"></i> Add Expense</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

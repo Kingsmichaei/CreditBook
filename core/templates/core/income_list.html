@@ -1,0 +1,64 @@
+{% extends 'core/base.html' %}
+{% block title %}Income — SYLVALINE Ventures{% endblock %}
+{% block page_title %}Income Records{% endblock %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="page-header">
+    <div>
+      <div class="page-header-title">Income Records</div>
+      <div class="page-header-sub">Total: <span style="color:var(--accent);font-weight:700;">₦{{ total|floatformat:0 }}</span></div>
+    </div>
+    <a href="{% url 'income_add' %}" class="btn-sv btn-sv-primary">
+      <i class="bi bi-plus-circle-fill"></i> Record Income
+    </a>
+  </div>
+
+  {% if income %}
+  <div class="table-wrapper">
+    <table class="sv-table">
+      <thead>
+        <tr>
+          <th>Description</th>
+          <th>Category</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Notes</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in income %}
+        <tr>
+          <td style="font-weight:600;">{{ item.description }}</td>
+          <td><span class="sv-badge badge-green">{{ item.get_category_display }}</span></td>
+          <td style="font-family:var(--font-display);font-weight:700;color:var(--accent);">₦{{ item.amount|floatformat:0 }}</td>
+          <td style="color:var(--text-2);">{{ item.date }}</td>
+          <td style="color:var(--text-3);font-size:13px;">{{ item.notes|truncatechars:30|default:"—" }}</td>
+          <td>
+            <div class="d-flex gap-1">
+              <a href="{% url 'income_edit' item.pk %}" class="icon-btn" style="width:30px;height:30px;font-size:13px;">
+                <i class="bi bi-pencil"></i>
+              </a>
+              <a href="{% url 'income_delete' item.pk %}" class="icon-btn" style="width:30px;height:30px;font-size:13px;color:var(--accent-3);">
+                <i class="bi bi-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="glass-card empty-state">
+    <div class="empty-state-icon"><i class="bi bi-arrow-down-circle"></i></div>
+    <div class="empty-state-title">No income recorded</div>
+    <div class="empty-state-sub mb-3">Record all income sources beyond direct sales.</div>
+    <a href="{% url 'income_add' %}" class="btn-sv btn-sv-primary">
+      <i class="bi bi-plus-circle"></i> Record Income
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,80 @@
+{% extends 'core/base.html' %}
+{% load humanize %}
+{% block title %}Billing{% endblock %}
+{% block content %}
+<div class="glass-card p-4 p-lg-5 billing-dashboard">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-start gap-3 mb-4">
+      <div>
+        <p class="text-uppercase small mb-2" style="letter-spacing: 0.2em; color: var(--accent);">Billing portal</p>
+        <h2 class="fw-bold mb-1">{{ tenant.business_name }}</h2>
+        <p class="mb-0" style="color: var(--text-2);">Manage your subscription, billing history, and payment method safely.</p>
+      </div>
+      <a href="{% url 'billing_subscribe' %}" class="btn-sv btn-sv-primary">{% if tenant.subscription_status == 'active' %}Update subscription{% else %}Subscribe now{% endif %}</a>
+    </div>
+
+    <div class="row g-4 mb-4">
+      <div class="col-lg-4">
+        <div class="stat-card">
+          <div class="stat-label">Subscription status</div>
+          <div class="stat-value text-capitalize">{{ tenant.get_subscription_status_display }}</div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="stat-card">
+          <div class="stat-label">Next billing date</div>
+          <div class="stat-value">{{ tenant.next_billing_date|default:'Not set' }}</div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="stat-card">
+          <div class="stat-label">Card on file</div>
+          <div class="stat-value">{{ tenant.nomba_card_type|default:'No card' }} {{ masked_pan }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-8">
+        <div class="glass-card p-4">
+          <h5 class="fw-bold mb-3">Billing history</h5>
+          <div class="table-responsive">
+            <table class="table sv-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Reference</th>
+                  <th>Status</th>
+                  <th>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for log in logs %}
+                <tr>
+                  <td>{{ log.created_at|date:'M d, Y' }}</td>
+                  <td>{{ log.order_reference }}</td>
+                  <td><span class="sv-badge">{{ log.get_status_display }}</span></td>
+                  <td>₦{{ log.amount|intcomma }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center py-4">No billing history yet.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-4">
+        <div class="glass-card p-4">
+          <h5 class="fw-bold mb-3">Plan details</h5>
+          <p class="mb-2">Monthly subscription</p>
+          <p class="display-6 fw-bold">₦{{ subscription_price|intcomma }}</p>
+          <ul class="list-unstyled mt-3">
+            <li><i class="bi bi-check-circle me-2 text-success"></i>Unlimited workspace access</li>
+            <li><i class="bi bi-check-circle me-2 text-success"></i>Recurring monthly billing</li>
+            <li><i class="bi bi-check-circle me-2 text-success"></i>Secure card storage</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+</div>
+{% endblock %}

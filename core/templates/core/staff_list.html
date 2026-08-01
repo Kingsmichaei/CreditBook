@@ -1,0 +1,128 @@
+{% extends 'core/base.html' %}
+{% block title %}Staff — SYLVALINE Ventures{% endblock %}
+{% block page_title %}Staff Management{% endblock %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="page-header">
+    <div>
+      <div class="page-header-title">Staff Management</div>
+      <div class="page-header-sub">
+        {{ staff.count }} staff member{{ staff.count|pluralize }} ·
+        <span style="color:var(--accent);">{{ staff|length }} total</span>
+      </div>
+    </div>
+    <a href="{% url 'staff_add' %}" class="btn-sv btn-sv-primary">
+      <i class="bi bi-person-plus-fill"></i> Add Staff
+    </a>
+  </div>
+
+  <!-- Summary stats -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card blue p-3">
+        <div class="stat-icon blue mb-2" style="width:36px;height:36px;border-radius:10px;font-size:14px;"><i class="bi bi-people-fill"></i></div>
+        <div class="stat-value" style="font-size:22px;">{{ staff|length }}</div>
+        <div class="stat-label">Total Staff</div>
+      </div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card green p-3">
+        <div class="stat-icon green mb-2" style="width:36px;height:36px;border-radius:10px;font-size:14px;"><i class="bi bi-check-circle-fill"></i></div>
+        <div class="stat-value" style="font-size:22px;">{{ active_staff_count }}</div>
+        <div class="stat-label">Active Members</div>
+      </div>
+    </div>
+  </div>
+
+  {% if staff %}
+  <div class="row g-3">
+    {% for member in staff %}
+    <div class="col-12 col-md-6 col-lg-4">
+      <div class="glass-card p-4" style="transition:all var(--transition);{% if not member.is_active %}opacity:0.6;{% endif %}"
+           onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+
+        <!-- Header -->
+        <div class="d-flex align-items-start gap-3 mb-3">
+          <div class="avatar" style="width:48px;height:48px;font-size:18px;flex-shrink:0;
+            background:linear-gradient(135deg,
+            {% if member.role == 'owner' %}#f59e0b,#d97706
+            {% elif member.role == 'manager' %}#3b82f6,#2563eb
+            {% elif member.role == 'cashier' %}#10b981,#059669
+            {% else %}#8b5cf6,#7c3aed{% endif %});">
+            {{ member.name|slice:":1"|upper }}
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-family:var(--font-display);font-weight:700;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+              {{ member.name }}
+            </div>
+            <span class="sv-badge {% if member.role == 'owner' %}badge-amber{% elif member.role == 'manager' %}badge-blue{% else %}badge-green{% endif %}" style="font-size:11px;">
+              {{ member.get_role_display }}
+            </span>
+          </div>
+          {% if member.is_active %}
+          <span class="sv-badge badge-green" style="font-size:10px;"><i class="bi bi-circle-fill" style="font-size:7px;"></i> Active</span>
+          {% else %}
+          <span class="sv-badge badge-gray" style="font-size:10px;">Inactive</span>
+          {% endif %}
+        </div>
+
+        <!-- Details -->
+        <div class="mb-3">
+          {% if member.phone %}
+          <div class="d-flex align-items-center gap-2 mb-1" style="font-size:13px;color:var(--text-2);">
+            <i class="bi bi-telephone" style="color:var(--accent);width:16px;font-size:11px;"></i>
+            {{ member.phone }}
+          </div>
+          {% endif %}
+          {% if member.email %}
+          <div class="d-flex align-items-center gap-2 mb-1" style="font-size:13px;color:var(--text-2);">
+            <i class="bi bi-envelope" style="color:var(--accent-blue);width:16px;font-size:11px;"></i>
+            {{ member.email }}
+          </div>
+          {% endif %}
+          <div class="d-flex align-items-center gap-2 mb-1" style="font-size:13px;color:var(--text-2);">
+            <i class="bi bi-calendar3" style="color:var(--text-3);width:16px;font-size:11px;"></i>
+            Joined {{ member.date_joined|date:"M j, Y" }}
+          </div>
+          {% if member.salary and member.salary > 0 %}
+          <div class="d-flex align-items-center gap-2" style="font-size:13px;color:var(--text-2);">
+            <i class="bi bi-cash-coin" style="color:var(--accent-2);width:16px;font-size:11px;"></i>
+            ₦{{ member.salary|floatformat:0 }}/month
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="divider"></div>
+
+        <!-- Actions -->
+        <div class="d-flex gap-2 align-items-center">
+          {% if member.phone %}
+          <a href="https://wa.me/{{ member.phone|cut:' '|cut:'-' }}" target="_blank" class="btn-sv btn-sv-whatsapp" style="font-size:12px;padding:7px 12px;">
+            <i class="bi bi-whatsapp"></i>
+          </a>
+          {% endif %}
+          <a href="{% url 'staff_edit' member.pk %}" class="btn-sv btn-sv-glass" style="font-size:12px;padding:7px 14px;flex:1;justify-content:center;">
+            <i class="bi bi-pencil"></i> Edit
+          </a>
+          <a href="{% url 'staff_delete' member.pk %}" class="btn-sv btn-sv-danger" style="font-size:12px;padding:7px 12px;" title="Remove staff">
+            <i class="bi bi-trash"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="glass-card empty-state">
+    <div class="empty-state-icon"><i class="bi bi-people"></i></div>
+    <div class="empty-state-title">No staff members added</div>
+    <div class="empty-state-sub mb-3">Add your team members to manage your workforce.</div>
+    <a href="{% url 'staff_add' %}" class="btn-sv btn-sv-primary">
+      <i class="bi bi-person-plus"></i> Add First Staff Member
+    </a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
