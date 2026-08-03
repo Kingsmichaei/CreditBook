@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
@@ -390,7 +390,7 @@
   <!-- Theme pill -->
   <button class="theme-pill" id="themeToggle">
     <i class="bi bi-moon-fill" id="themeIcon"></i>
-    <span id="themeLabel">Dark</span>
+    <span id="themeLabel">Light</span>
   </button>
 
   <div class="login-wrap">
@@ -531,7 +531,7 @@
       lbl.textContent = t === 'dark' ? 'Dark' : 'Light';
     }
 
-    applyTheme(localStorage.getItem('bm-theme') || 'dark');
+    applyTheme(localStorage.getItem('bm-theme') || 'light');
     tog.addEventListener('click', () => {
       applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
     });

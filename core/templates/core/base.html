@@ -1,6 +1,6 @@
 {% load static %}
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
@@ -1058,7 +1058,7 @@
     themeIcon.style.fontSize = '9px';
   }
 
-  const savedTheme = localStorage.getItem('sv-theme') || 'dark';
+  const savedTheme = localStorage.getItem('sv-theme') || 'light';
   applyTheme(savedTheme);
 
   themeToggle.addEventListener('click', () => {
