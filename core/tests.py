@@ -151,6 +151,22 @@ class StaffNavigationTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Staff')
 
+    def test_staff_link_is_hidden_for_staff_member(self):
+        owner = get_user_model().objects.create_user(username='owneruser2', email='owner2@example.com', password='StrongPass123')
+        tenant = Tenant.objects.create(owner=owner, business_name='Staff Co', slug='staffco2')
+        TenantMembership.objects.create(user=owner, tenant=tenant, role='owner')
+
+        staff_user = get_user_model().objects.create_user(username='staffuser', email='staff@example.com', password='StrongPass123')
+        TenantMembership.objects.create(user=staff_user, tenant=tenant, role='staff')
+
+        self.client.force_login(staff_user)
+        response = self.client.get(reverse('dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Staff')
+        self.assertNotContains(response, 'Billing')
+        self.assertNotContains(response, 'Profile')
+
 
 class StaffAuthenticationTests(TestCase):
     def test_staff_can_create_login_account(self):

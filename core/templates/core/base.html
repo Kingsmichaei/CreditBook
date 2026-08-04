@@ -950,7 +950,7 @@
     </a>
 
     
-    {% if request.user.is_superuser or request.user.tenant_memberships.all %}
+    {% if request.user.is_superuser or request.user.tenant_memberships.filter(tenant=request.tenant, role__in=['owner', 'manager']).exists %}
     <div class="nav-section-label mt-2">Business</div>
     <a href="{% url 'staff_list' %}" class="nav-link-item {% if 'staff' in request.resolver_match.url_name %}active{% endif %}">
       <span class="nav-icon"><i class="bi bi-person-badge-fill"></i></span>
