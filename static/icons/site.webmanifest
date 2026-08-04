@@ -1,7 +1,7 @@
 {
-  "name": "Your Application Name",
-  "short_name": "App",
-  "description": "Application description",
+  "name": "Credit Book",
+  "short_name": "CreditBook",
+  "description": "Business management and accounting software",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
