@@ -167,6 +167,20 @@ class StaffNavigationTests(TestCase):
         self.assertNotContains(response, 'Billing')
         self.assertNotContains(response, 'Profile')
 
+    def test_billing_button_is_hidden_for_staff_member_on_dashboard(self):
+        owner = get_user_model().objects.create_user(username='owneruser3', email='owner3@example.com', password='StrongPass123')
+        tenant = Tenant.objects.create(owner=owner, business_name='Billing Co', slug='billingco')
+        TenantMembership.objects.create(user=owner, tenant=tenant, role='owner')
+
+        staff_user = get_user_model().objects.create_user(username='staffuser2', email='staff2@example.com', password='StrongPass123')
+        TenantMembership.objects.create(user=staff_user, tenant=tenant, role='staff')
+
+        self.client.force_login(staff_user)
+        response = self.client.get(reverse('dashboard'))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'Billing')
+
 
 class StaffAuthenticationTests(TestCase):
     def test_staff_can_create_login_account(self):

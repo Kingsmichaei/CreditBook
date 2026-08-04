@@ -68,7 +68,7 @@
       <a href="{% url 'income_add' %}" class="btn-sv btn-sv-glass" style="font-size:13px;padding:9px 16px;">
         <i class="bi bi-arrow-down-circle"></i> Record Income
       </a>
-      {% if request.user.is_superuser or request.user.tenant_memberships.filter(tenant=request.tenant, role__in=['owner', 'manager']).exists %}
+      {% if show_tenant_admin_links %}
       <a href="{% url 'billing_dashboard' %}" class="btn-sv btn-sv-secondary" style="font-size:13px;padding:9px 16px;">
         <i class="bi bi-credit-card-2-front-fill"></i> Billing
       </a>

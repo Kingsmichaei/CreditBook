@@ -1,6 +1,6 @@
 from django.db.models import Sum
 from django.utils import timezone
-from .models import Sale, Expense, Debt, Customer, Staff
+from .models import Sale, Expense, Debt, Customer, Staff, TenantMembership
 
 
 def business_stats(request):
@@ -8,6 +8,13 @@ def business_stats(request):
     tenant = getattr(request, 'tenant', None)
     today = timezone.now().date()
     month_start = today.replace(day=1)
+
+    show_tenant_admin_links = False
+    if request.user.is_authenticated and tenant is not None:
+        show_tenant_admin_links = (
+            request.user.is_superuser or
+            TenantMembership.objects.filter(user=request.user, tenant=tenant, role__in=['owner', 'manager']).exists()
+        )
 
     sales = Sale.objects.filter(date__gte=month_start)
     expenses = Expense.objects.filter(date__gte=month_start)
@@ -36,4 +43,5 @@ def business_stats(request):
         'overdue_debts_count': debts.filter(due_date__lt=today).count(),
         'active_staff_count': staff.count(),
         'customers_count': customers.count(),
+        'show_tenant_admin_links': show_tenant_admin_links,
     }
