@@ -12,7 +12,7 @@
         Good {% now "G" as hour %}{% if hour|add:"0" < 12 %}Morning{% elif hour|add:"0" < 17 %}Afternoon{% else %}Evening{% endif %} 👋
       </h1>
       <p style="color:var(--text-2);font-size:14px;margin-top:4px;">
-        Here's what's happening at Complete SYLVALINE Ventures today.
+        Here's what's happening at {{ business_name }} today.
       </p>
     </div>
     <div style="font-size:13px;color:var(--text-3);">{% now "l, N j, Y" %}</div>
