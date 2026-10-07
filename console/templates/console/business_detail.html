@@ -169,7 +169,9 @@
     </div>
   </div>
 </div>
+{% endblock %}
 
+{% block modals %}
 <!-- ── Modals ─────────────────────────────────────────── -->
 {% url 'console:business_action' tenant.pk 'activate' as activate_url %}
 {% url 'console:business_action' tenant.pk 'extend_trial' as trial_url %}

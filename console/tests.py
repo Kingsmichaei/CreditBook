@@ -85,6 +85,11 @@ class PageTests(ConsoleTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['usage']['customers'], 1)
 
+    def test_action_modals_render_outside_main_content(self):
+        # Inside .main-content (z-index: 1) the modals sit beneath Bootstrap's backdrop and the page freezes.
+        html = self.client.get(reverse('console:business_detail', args=[self.tenant.pk])).content.decode()
+        self.assertGreater(html.index('id="activateModal"'), html.index('</main>'))
+
     def test_payments_and_activity_pages_render(self):
         self.assertContains(self.client.get(reverse('console:payments')), 'Mama Put Foods')
         self.assertEqual(self.client.get(reverse('console:activity')).status_code, 200)
