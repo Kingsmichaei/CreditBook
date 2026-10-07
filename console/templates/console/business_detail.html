@@ -1,0 +1,254 @@
+{% extends 'console/base.html' %}
+{% load humanize crispy_forms_tags %}
+{% block title %}{{ tenant.business_name }} — Owner Console{% endblock %}
+{% block page_title %}{{ tenant.business_name }}{% endblock %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="mb-3">
+    <a href="{% url 'console:businesses' %}" style="font-size:13px;color:var(--text-2);text-decoration:none;"><i class="bi bi-arrow-left"></i> All businesses</a>
+  </div>
+
+  <div class="page-header">
+    <div class="d-flex align-items-center gap-3">
+      <div class="avatar" style="width:52px;height:52px;font-size:20px;">{{ tenant.business_name|slice:":1"|upper }}</div>
+      <div>
+        <div class="page-header-title">{{ tenant.business_name }}</div>
+        <div class="page-header-sub">#{{ tenant.pk }} · {{ tenant.slug }} · joined {{ tenant.created_at|date:"M j, Y" }}</div>
+        <div class="mt-1">{% include 'console/_status_badge.html' with t=tenant %}</div>
+      </div>
+    </div>
+  </div>
+
+  {% if tenant.is_disabled %}
+  <div class="alert alert-danger mb-4">
+    <strong><i class="bi bi-lock-fill"></i> Disabled</strong> {{ tenant.disabled_at|naturaltime }} — members are locked out of the app.
+    {% if tenant.disabled_reason %}<div class="mt-1" style="font-size:14px;">Reason: {{ tenant.disabled_reason }}</div>{% endif %}
+  </div>
+  {% endif %}
+
+  <div class="row g-3">
+    <div class="col-12 col-xl-8">
+      <!-- Usage -->
+      <div class="row g-3 mb-3">
+        <div class="col-6 col-md-3"><div class="stat-card green"><div class="stat-value">₦{{ lifetime_revenue|floatformat:0|intcomma }}</div><div class="stat-label">Paid to you</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-card blue"><div class="stat-value">{{ usage.sales_count|intcomma }}</div><div class="stat-label">Sales recorded</div><div class="console-kpi-sub">{{ usage.sales_this_month }} this month</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-card amber"><div class="stat-value">{{ usage.customers|intcomma }}</div><div class="stat-label">Customers</div></div></div>
+        <div class="col-6 col-md-3"><div class="stat-card blue"><div class="stat-value">{{ members.count }}</div><div class="stat-label">Members</div><div class="console-kpi-sub">{{ usage.staff }} active staff</div></div></div>
+      </div>
+
+      <div class="row g-3 mb-3">
+        <!-- Subscription -->
+        <div class="col-12 col-md-6">
+          <div class="glass-card p-4 h-100">
+            <div class="console-section-title mb-2">Subscription</div>
+            <div class="detail-row"><span class="k">Status</span><span class="v">{{ tenant.get_subscription_status_display }}</span></div>
+            <div class="detail-row"><span class="k">Trial ends</span><span class="v">{{ tenant.trial_ends_at|default:"—" }}{% if tenant.subscription_status == 'trial' and tenant.trial_days_left is not None %} ({{ tenant.trial_days_left }}d left){% endif %}</span></div>
+            <div class="detail-row"><span class="k">Subscribed since</span><span class="v">{{ tenant.subscription_start|default:"—" }}</span></div>
+            <div class="detail-row"><span class="k">Next billing</span>
+              <span class="v" {% if tenant.subscription_status == 'active' and tenant.next_billing_date and tenant.next_billing_date < today %}style="color:var(--accent-3);"{% endif %}>{{ tenant.next_billing_date|default:"—" }}</span></div>
+            <div class="detail-row"><span class="k">Saved card</span><span class="v">{% if has_card %}{{ tenant.nomba_card_type|default:"Card" }} ····{{ tenant.nomba_card_pan|slice:"-4:" }}{% else %}None{% endif %}</span></div>
+            <div class="detail-row"><span class="k">Failed attempts</span><span class="v">{{ tenant.failed_payment_count }}</span></div>
+            <div class="detail-row"><span class="k">Last attempt</span><span class="v">{{ tenant.last_payment_attempt|naturaltime|default:"—" }}</span></div>
+          </div>
+        </div>
+        <!-- Profile -->
+        <div class="col-12 col-md-6">
+          <div class="glass-card p-4 h-100">
+            <div class="console-section-title mb-2">Owner &amp; business</div>
+            <div class="detail-row"><span class="k">Owner</span><span class="v">{{ tenant.owner.get_full_name|default:tenant.owner.username }}</span></div>
+            <div class="detail-row"><span class="k">Email</span><span class="v">{% if tenant.owner.email %}<a href="mailto:{{ tenant.owner.email }}" style="color:var(--accent-blue);">{{ tenant.owner.email }}</a>{% else %}—{% endif %}</span></div>
+            <div class="detail-row"><span class="k">Last login</span><span class="v">{{ tenant.owner.last_login|naturaltime|default:"Never" }}</span></div>
+            <div class="detail-row"><span class="k">Currency</span><span class="v">{{ tenant.currency }}</span></div>
+            <div class="detail-row"><span class="k">Sales volume</span><span class="v">{{ tenant.currency }}{{ usage.sales_total|floatformat:0|intcomma }}</span></div>
+            <div class="detail-row"><span class="k">Open debts</span><span class="v">{{ tenant.currency }}{{ usage.open_debts|floatformat:0|intcomma }}</span></div>
+            <div class="detail-row"><span class="k">Last sale</span><span class="v">{{ usage.last_sale|naturaltime|default:"—" }}</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Members -->
+      <div class="glass-card p-4 mb-3">
+        <div class="console-section-title mb-3">Members</div>
+        <div class="table-wrapper">
+          <table class="sv-table">
+            <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Last login</th></tr></thead>
+            <tbody>
+              {% for m in members %}
+              <tr>
+                <td style="font-weight:600;">{{ m.user.get_full_name|default:m.user.username }}</td>
+                <td style="color:var(--text-2);">{{ m.user.email|default:"—" }}</td>
+                <td><span class="sv-badge {% if m.role == 'owner' %}badge-green{% elif m.role == 'manager' %}badge-blue{% else %}badge-gray{% endif %}">{{ m.get_role_display }}</span></td>
+                <td style="color:var(--text-2);">{{ m.user.last_login|naturaltime|default:"Never" }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Billing history -->
+      <div class="glass-card p-4 mb-3">
+        <div class="console-section-title mb-3">Billing history</div>
+        {% if billing_logs %}
+        <div class="table-wrapper">
+          <table class="sv-table">
+            <thead><tr><th>Date</th><th>Amount</th><th>Status</th><th>Method</th><th>Reference</th></tr></thead>
+            <tbody>
+              {% for log in billing_logs %}
+              <tr>
+                <td style="white-space:nowrap;color:var(--text-2);">{{ log.created_at|date:"M j, Y H:i" }}</td>
+                <td style="font-weight:700;">₦{{ log.amount|floatformat:0|intcomma }}</td>
+                <td><span class="sv-badge {% if log.status == 'success' %}badge-green{% elif log.status == 'failed' %}badge-red{% elif log.status == 'pending' %}badge-amber{% else %}badge-gray{% endif %}">{{ log.get_status_display }}</span></td>
+                <td>{% if log.payment_method == 'manual' %}<span class="sv-badge badge-gray">Manual</span>{% elif log.is_tokenized %}Card{% else %}{{ log.payment_method|default:"Checkout" }}{% endif %}</td>
+                <td style="font-size:12px;color:var(--text-3);">{{ log.nomba_txn_id|default:log.order_reference|truncatechars:24 }}
+                  {% if log.failure_reason %}<div style="color:var(--accent-3);">{{ log.failure_reason|truncatechars:60 }}</div>{% endif %}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="console-kpi-sub">No payment attempts yet.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Actions column -->
+    <div class="col-12 col-xl-4">
+      <div class="glass-card p-4 mb-3">
+        <div class="console-section-title mb-3">Subscription actions</div>
+        <div class="d-flex flex-column gap-2">
+          <button type="button" class="btn-sv btn-sv-primary action-btn" data-bs-toggle="modal" data-bs-target="#activateModal">
+            <i class="bi bi-patch-check-fill"></i> {% if tenant.subscription_status == 'active' %}Extend subscription{% else %}Mark as subscribed{% endif %}
+          </button>
+          {% if tenant.subscription_status != 'active' %}
+          <button type="button" class="btn-sv btn-sv-glass action-btn" data-bs-toggle="modal" data-bs-target="#trialModal">
+            <i class="bi bi-hourglass-split"></i> Extend trial
+          </button>
+          {% endif %}
+          {% if tenant.subscription_status != 'cancelled' %}
+          <button type="button" class="btn-sv btn-sv-danger action-btn" data-bs-toggle="modal" data-bs-target="#terminateModal">
+            <i class="bi bi-x-octagon-fill"></i> Terminate subscription
+          </button>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="glass-card p-4 mb-3 danger-zone">
+        <div class="console-section-title mb-1">Access</div>
+        <div class="console-kpi-sub mb-3">Disabling locks every member out immediately. Data and subscription are kept.</div>
+        {% if tenant.is_disabled %}
+        <button type="button" class="btn-sv btn-sv-primary action-btn" data-bs-toggle="modal" data-bs-target="#enableModal">
+          <i class="bi bi-unlock-fill"></i> Enable business
+        </button>
+        {% else %}
+        <button type="button" class="btn-sv btn-sv-danger action-btn" data-bs-toggle="modal" data-bs-target="#disableModal">
+          <i class="bi bi-lock-fill"></i> Disable business
+        </button>
+        {% endif %}
+      </div>
+
+      <div class="glass-card p-4">
+        <div class="console-section-title mb-2">Admin history</div>
+        <ul class="console-list">
+          {% for a in actions %}
+          <li>
+            <div style="flex:1;min-width:0;">
+              <div style="font-weight:600;">{{ a.get_action_display }}</div>
+              {% if a.previous_status != a.new_status %}<div class="meta">{{ a.previous_status }} → {{ a.new_status }}</div>{% endif %}
+              {% if a.note %}<div style="font-size:13px;color:var(--text-2);">{{ a.note }}</div>{% endif %}
+              <div class="meta">{{ a.actor.username|default:"system" }} · {{ a.created_at|date:"M j, Y H:i" }}</div>
+            </div>
+          </li>
+          {% empty %}
+          <li class="meta">No admin actions yet.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Modals ─────────────────────────────────────────── -->
+{% url 'console:business_action' tenant.pk 'activate' as activate_url %}
+{% url 'console:business_action' tenant.pk 'extend_trial' as trial_url %}
+{% url 'console:business_action' tenant.pk 'terminate' as terminate_url %}
+{% url 'console:business_action' tenant.pk 'disable' as disable_url %}
+{% url 'console:business_action' tenant.pk 'enable' as enable_url %}
+
+<div class="modal fade" id="activateModal" tabindex="-1" aria-labelledby="activateModalLabel" aria-hidden="true" data-form="activate_form">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+    <form method="post" action="{{ activate_url }}">{% csrf_token %}
+      <div class="modal-header"><h5 class="modal-title" id="activateModalLabel">{% if tenant.subscription_status == 'active' %}Extend subscription{% else %}Mark as subscribed{% endif %}</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body">
+        <p style="font-size:14px;color:var(--text-2);">Sets <strong>{{ tenant.business_name }}</strong> to <em>Active</em>, clears failed attempts, and sets the next billing date that many days from today.</p>
+        {{ activate_form|crispy }}
+      </div>
+      <div class="modal-footer"><button type="button" class="btn-sv btn-sv-glass" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn-sv btn-sv-primary">Confirm</button></div>
+    </form>
+  </div></div>
+</div>
+
+<div class="modal fade" id="trialModal" tabindex="-1" aria-labelledby="trialModalLabel" aria-hidden="true" data-form="trial_form">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+    <form method="post" action="{{ trial_url }}">{% csrf_token %}
+      <div class="modal-header"><h5 class="modal-title" id="trialModalLabel">Extend trial</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body">
+        <p style="font-size:14px;color:var(--text-2);">Puts the business back on trial and adds days to the trial end date (counted from today if the trial already ended).</p>
+        {{ trial_form|crispy }}
+      </div>
+      <div class="modal-footer"><button type="button" class="btn-sv btn-sv-glass" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn-sv btn-sv-primary">Extend trial</button></div>
+    </form>
+  </div></div>
+</div>
+
+<div class="modal fade" id="terminateModal" tabindex="-1" aria-labelledby="terminateModalLabel" aria-hidden="true" data-form="terminate_form">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+    <form method="post" action="{{ terminate_url }}">{% csrf_token %}
+      <div class="modal-header"><h5 class="modal-title" id="terminateModalLabel">Terminate subscription</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body">
+        <p style="font-size:14px;color:var(--text-2);">Ends the subscription for <strong>{{ tenant.business_name }}</strong>. No further charges will be made and members will be asked to subscribe again before they can use the app. Their data is kept.</p>
+        {{ terminate_form|crispy }}
+      </div>
+      <div class="modal-footer"><button type="button" class="btn-sv btn-sv-glass" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn-sv btn-sv-danger">Terminate</button></div>
+    </form>
+  </div></div>
+</div>
+
+<div class="modal fade" id="disableModal" tabindex="-1" aria-labelledby="disableModalLabel" aria-hidden="true" data-form="disable_form">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+    <form method="post" action="{{ disable_url }}">{% csrf_token %}
+      <div class="modal-header"><h5 class="modal-title" id="disableModalLabel">Disable business</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body">
+        <p style="font-size:14px;color:var(--text-2);">All {{ members.count }} member{{ members.count|pluralize }} of <strong>{{ tenant.business_name }}</strong> will be locked out until you enable it again. Subscription state is not changed.</p>
+        {{ disable_form|crispy }}
+      </div>
+      <div class="modal-footer"><button type="button" class="btn-sv btn-sv-glass" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn-sv btn-sv-danger">Disable</button></div>
+    </form>
+  </div></div>
+</div>
+
+<div class="modal fade" id="enableModal" tabindex="-1" aria-labelledby="enableModalLabel" aria-hidden="true" data-form="enable_form">
+  <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+    <form method="post" action="{{ enable_url }}">{% csrf_token %}
+      <div class="modal-header"><h5 class="modal-title" id="enableModalLabel">Enable business</h5><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button></div>
+      <div class="modal-body">
+        <p style="font-size:14px;color:var(--text-2);">Restores access for every member of <strong>{{ tenant.business_name }}</strong>.</p>
+        {{ enable_form|crispy }}
+      </div>
+      <div class="modal-footer"><button type="button" class="btn-sv btn-sv-glass" data-bs-dismiss="modal">Cancel</button><button type="submit" class="btn-sv btn-sv-primary">Enable</button></div>
+    </form>
+  </div></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{% if open_modal %}
+<script>
+  // Re-open the modal whose form failed validation so its errors are visible.
+  const failed = document.querySelector('.modal[data-form="{{ open_modal }}"]');
+  if (failed) new bootstrap.Modal(failed).show();
+</script>
+{% endif %}
+{% endblock %}

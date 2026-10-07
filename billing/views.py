@@ -121,7 +121,7 @@ def payment_callback_view(request):
                     tenant.nomba_token_key = token_key
                     tenant.nomba_card_type = card_type or tenant.nomba_card_type
                     tenant.nomba_card_pan = card_pan or tenant.nomba_card_pan
-                if tenant.subscription_status in ['trial', 'read_only', 'past_due', 'paused']:
+                if tenant.subscription_status in ['trial', 'read_only', 'past_due', 'paused', 'suspended', 'cancelled']:
                     tenant.subscription_status = 'active'
                 tenant.next_billing_date = timezone.now().date() + timedelta(days=30)
                 tenant.subscription_start = tenant.subscription_start or timezone.now().date()
@@ -226,7 +226,7 @@ def nomba_webhook_view(request):
                 tenant.nomba_token_key = token_key
                 tenant.nomba_card_type = card_type
                 tenant.nomba_card_pan = card_pan
-            if tenant.subscription_status in ['trial', 'read_only', 'past_due', 'paused']:
+            if tenant.subscription_status in ['trial', 'read_only', 'past_due', 'paused', 'suspended', 'cancelled']:
                 tenant.subscription_status = 'active'
             tenant.next_billing_date = timezone.now().date() + timedelta(days=30)
             tenant.subscription_start = tenant.subscription_start or timezone.now().date()
@@ -262,3 +262,22 @@ def account_paused_view(request):
         'tenant': tenant,
         'subscription_price': settings.SUBSCRIPTION_PRICE_NGN,
     })
+
+
+@login_required
+def account_cancelled_view(request):
+    """Render the page shown after the platform owner terminates a subscription."""
+    tenant = _get_tenant_from_request(request)
+    return render(request, 'billing/cancelled.html', {
+        'tenant': tenant,
+        'subscription_price': settings.SUBSCRIPTION_PRICE_NGN,
+    })
+
+
+@login_required
+def account_disabled_view(request):
+    """Render the page shown when the platform owner has disabled the business."""
+    tenant = _get_tenant_from_request(request)
+    if tenant and not tenant.is_disabled:
+        return redirect('dashboard')
+    return render(request, 'billing/disabled.html', {'tenant': tenant})

@@ -1,0 +1,84 @@
+{% extends 'core/base.html' %}
+
+{% block brand_sub %}Owner Console{% endblock %}
+
+{% block sidebar_nav %}
+{% with url_name=request.resolver_match.url_name %}
+<div class="nav-section-label">Platform</div>
+<a href="{% url 'console:overview' %}" class="nav-link-item {% if url_name == 'overview' %}active{% endif %}">
+  <span class="nav-icon"><i class="bi bi-speedometer2"></i></span>
+  Overview
+</a>
+<a href="{% url 'console:businesses' %}" class="nav-link-item {% if url_name == 'businesses' or url_name == 'business_detail' or url_name == 'business_action' %}active{% endif %}">
+  <span class="nav-icon"><i class="bi bi-buildings-fill"></i></span>
+  Businesses
+</a>
+<a href="{% url 'console:payments' %}" class="nav-link-item {% if url_name == 'payments' %}active{% endif %}">
+  <span class="nav-icon"><i class="bi bi-receipt"></i></span>
+  Payments
+</a>
+<a href="{% url 'console:activity' %}" class="nav-link-item {% if url_name == 'activity' %}active{% endif %}">
+  <span class="nav-icon"><i class="bi bi-journal-text"></i></span>
+  Audit Log
+</a>
+
+<div class="nav-section-label mt-2">Shortcuts</div>
+<a href="{% url 'console:businesses' %}?status=trial_ending" class="nav-link-item">
+  <span class="nav-icon"><i class="bi bi-hourglass-split"></i></span>
+  Trials Ending
+</a>
+<a href="{% url 'console:businesses' %}?status=overdue" class="nav-link-item">
+  <span class="nav-icon"><i class="bi bi-calendar-x"></i></span>
+  Overdue Renewals
+</a>
+<a href="{% url 'admin:index' %}" class="nav-link-item">
+  <span class="nav-icon"><i class="bi bi-database-gear"></i></span>
+  Django Admin
+</a>
+{% if request.tenant %}
+<div class="nav-section-label mt-2">My Business</div>
+<a href="{% url 'dashboard' %}" class="nav-link-item">
+  <span class="nav-icon"><i class="bi bi-arrow-left-circle"></i></span>
+  Back to {{ request.tenant.business_name|truncatechars:18 }}
+</a>
+{% endif %}
+{% endwith %}
+{% endblock %}
+
+{% block tenant_alerts %}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .console-kpi-sub { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+  .console-kpi-sub .up { color: var(--accent); font-weight: 600; }
+  .console-kpi-sub .down { color: var(--accent-3); font-weight: 600; }
+  .console-section-title { font-family: var(--font-display); font-weight: 700; font-size: 16px; color: var(--text); }
+  .console-list { list-style: none; margin: 0; padding: 0; }
+  .console-list li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .console-list li:last-child { border-bottom: none; }
+  .console-list .meta { font-size: 12px; color: var(--text-3); }
+  .console-list a { color: var(--text); text-decoration: none; font-weight: 600; }
+  .console-list a:hover { color: var(--accent); }
+  .filter-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .filter-pill {
+    padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 600;
+    border: 1px solid var(--border-2); color: var(--text-2); text-decoration: none; background: var(--surface);
+  }
+  .filter-pill:hover { color: var(--text); background: var(--surface-hover); }
+  .filter-pill.active { background: var(--accent); border-color: var(--accent); color: #062b1f; }
+  .console-pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; font-size: 13px; color: var(--text-2); }
+  .console-pagination .btn-sv { font-size: 13px; padding: 7px 14px; }
+  .detail-row { display: flex; justify-content: space-between; gap: 16px; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+  .detail-row:last-child { border-bottom: none; }
+  .detail-row .k { color: var(--text-3); }
+  .detail-row .v { color: var(--text); font-weight: 600; text-align: right; }
+  .modal-content { background: var(--bg-2); color: var(--text); border: 1px solid var(--border-2); border-radius: var(--radius-sm); }
+  .modal-header, .modal-footer { border-color: var(--border); }
+  [data-theme="dark"] .btn-close { filter: invert(1); }
+  .action-btn { width: 100%; justify-content: flex-start; font-size: 14px; }
+  .danger-zone { border: 1px solid rgba(244,63,94,0.35) !important; }
+  .chart-box { position: relative; height: 260px; }
+  .business-link { color: var(--text); text-decoration: none; font-weight: 600; }
+  .business-link:hover { color: var(--accent); }
+</style>
+{% endblock %}

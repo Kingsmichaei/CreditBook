@@ -13,7 +13,9 @@ class SubscriptionMiddleware:
     """Enforce tenant subscription lifecycle, including trial warnings, read-only and paused access."""
 
     SAFE_READ_ONLY_METHODS = ('GET', 'HEAD', 'OPTIONS')
-    BILLING_PATHS = ('/billing/', '/billing/webhook/', '/logout/', '/admin/')
+    BILLING_PATHS = ('/billing/', '/billing/webhook/', '/logout/', '/admin/', '/console/')
+    # Console/admin views enforce their own superuser checks, so they stay reachable for the platform owner.
+    DISABLED_ALLOWED_PATHS = ('/billing/disabled/', '/logout/', '/admin/', '/console/')
 
     def __init__(self, get_response):
         self.get_response = get_response
@@ -29,7 +31,19 @@ class SubscriptionMiddleware:
             if not tenant:
                 return self.get_response(request)
 
+        if tenant.is_disabled:
+            if not any(request.path.startswith(path) for path in self.DISABLED_ALLOWED_PATHS):
+                logger.info('Blocking disabled tenant %s from path %s', tenant.id, request.path)
+                return redirect('account_disabled')
+            return self.get_response(request)
+
         tenant.update_subscription_state()
+
+        if tenant.subscription_status == 'cancelled':
+            if not any(request.path.startswith(path) for path in self.BILLING_PATHS):
+                logger.info('Redirecting cancelled tenant %s from path %s', tenant.id, request.path)
+                return redirect('account_cancelled')
+            return self.get_response(request)
 
         if tenant.subscription_status == 'paused':
             if not any(request.path.startswith(path) for path in self.BILLING_PATHS):

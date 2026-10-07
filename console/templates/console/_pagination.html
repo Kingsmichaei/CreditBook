@@ -1,0 +1,14 @@
+{% if page.paginator.num_pages > 1 %}
+<div class="console-pagination">
+  <div>Showing {{ page.start_index }}–{{ page.end_index }} of {{ page.paginator.count }}</div>
+  <div class="d-flex gap-2">
+    {% if page.has_previous %}
+    <a class="btn-sv btn-sv-glass" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page.previous_page_number }}"><i class="bi bi-chevron-left"></i> Prev</a>
+    {% endif %}
+    <span style="align-self:center;">Page {{ page.number }} of {{ page.paginator.num_pages }}</span>
+    {% if page.has_next %}
+    <a class="btn-sv btn-sv-glass" href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page.next_page_number }}">Next <i class="bi bi-chevron-right"></i></a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'crispy_bootstrap5',
     'core',
     'billing',
+    'console',
 ]
 
 if DJANGO_CELERY_BEAT_INSTALLED:

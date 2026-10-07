@@ -1,0 +1,21 @@
+{% extends 'core/base.html' %}
+{% load humanize %}
+{% block title %}Subscription ended{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="min-height: calc(100vh - 64px);">
+  <div class="glass-card p-5 text-center" style="max-width: 520px; width: 100%;">
+    <div style="width:64px;height:64px;background:rgba(244,63,94,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:28px;color:var(--accent-3);">
+      <i class="bi bi-x-octagon"></i>
+    </div>
+    <p class="text-uppercase small mb-2" style="letter-spacing: 0.2em; color: var(--accent-3);">Subscription ended</p>
+    <h2 class="fw-bold mb-3">Your subscription has been terminated</h2>
+    <p class="mb-4" style="color: var(--text-2);">
+      Your data is safe. Start a new subscription for ₦{{ subscription_price|floatformat:2|intcomma }} per month
+      to restore access to your records.
+    </p>
+    <a href="{% url 'billing_subscribe' %}" class="btn-sv btn-sv-primary w-100 justify-content-center">
+      <i class="bi bi-credit-card-2-front"></i> Subscribe Again
+    </a>
+  </div>
+</div>
+{% endblock %}

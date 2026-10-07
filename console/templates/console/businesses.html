@@ -1,0 +1,108 @@
+{% extends 'console/base.html' %}
+{% load humanize %}
+{% block title %}Businesses — Owner Console{% endblock %}
+{% block page_title %}Businesses{% endblock %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="page-header">
+    <div>
+      <div class="page-header-title">Businesses</div>
+      <div class="page-header-sub">{{ page.paginator.count }} matching business{{ page.paginator.count|pluralize:"es" }}</div>
+    </div>
+    <a href="?{% if querystring %}{{ querystring }}&{% endif %}export=csv" class="btn-sv btn-sv-secondary">
+      <i class="bi bi-download"></i> Export CSV
+    </a>
+  </div>
+
+  <div class="glass-card p-3 mb-4">
+    <form method="get" class="row g-2 align-items-center">
+      <input type="hidden" name="status" value="{{ status }}">
+      <div class="col-12 col-md-8">
+        <div class="search-bar">
+          <span class="search-icon"><i class="bi bi-search"></i></span>
+          <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search business name, slug, owner name or email...">
+        </div>
+      </div>
+      <div class="col-8 col-md-3">
+        <select name="sort" class="form-select" onchange="this.form.submit()" aria-label="Sort businesses">
+          <option value="newest" {% if sort == 'newest' %}selected{% endif %}>Newest first</option>
+          <option value="oldest" {% if sort == 'oldest' %}selected{% endif %}>Oldest first</option>
+          <option value="name" {% if sort == 'name' %}selected{% endif %}>Name A–Z</option>
+          <option value="next_billing" {% if sort == 'next_billing' %}selected{% endif %}>Next billing date</option>
+          <option value="revenue" {% if sort == 'revenue' %}selected{% endif %}>Highest revenue</option>
+        </select>
+      </div>
+      <div class="col-4 col-md-1">
+        <button type="submit" class="btn-sv btn-sv-primary w-100 justify-content-center">Go</button>
+      </div>
+    </form>
+
+    <div class="filter-pills mt-3">
+      <a class="filter-pill {% if not status %}active{% endif %}" href="?q={{ q|urlencode }}&sort={{ sort }}">All</a>
+      {% for key, label in status_filters.items %}
+      <a class="filter-pill {% if status == key %}active{% endif %}" href="?q={{ q|urlencode }}&sort={{ sort }}&status={{ key }}">{{ label }}</a>
+      {% endfor %}
+      {% for key, label in extra_filters.items %}
+      <a class="filter-pill {% if status == key %}active{% endif %}" href="?q={{ q|urlencode }}&sort={{ sort }}&status={{ key }}">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if page.object_list %}
+  <div class="table-wrapper">
+    <table class="sv-table">
+      <thead>
+        <tr>
+          <th>Business</th>
+          <th>Owner</th>
+          <th>Status</th>
+          <th>Members</th>
+          <th>Trial ends / Next billing</th>
+          <th>Revenue</th>
+          <th>Joined</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for t in page.object_list %}
+        <tr>
+          <td>
+            <a class="business-link" href="{% url 'console:business_detail' t.pk %}">{{ t.business_name }}</a>
+            <div style="font-size:12px;color:var(--text-3);">#{{ t.pk }} · {{ t.slug }}</div>
+          </td>
+          <td>
+            <div style="font-weight:500;">{{ t.owner.get_full_name|default:t.owner.username }}</div>
+            <div style="font-size:12px;color:var(--text-3);">{{ t.owner.email }}</div>
+          </td>
+          <td>{% include 'console/_status_badge.html' %}</td>
+          <td>{{ t.member_count }}</td>
+          <td style="white-space:nowrap;color:var(--text-2);">
+            {% if t.subscription_status == 'trial' %}
+              {{ t.trial_ends_at|default:"—" }}
+            {% elif t.next_billing_date %}
+              <span {% if t.subscription_status == 'active' and t.next_billing_date < today %}style="color:var(--accent-3);font-weight:600;" title="Renewal overdue"{% endif %}>{{ t.next_billing_date }}</span>
+            {% else %}—{% endif %}
+          </td>
+          <td style="font-weight:700;">₦{{ t.revenue|floatformat:0|intcomma }}</td>
+          <td style="white-space:nowrap;color:var(--text-2);">{{ t.created_at|date:"M j, Y" }}</td>
+          <td>
+            <a href="{% url 'console:business_detail' t.pk %}" class="icon-btn" style="width:30px;height:30px;font-size:13px;" title="Manage">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include 'console/_pagination.html' %}
+  {% else %}
+  <div class="glass-card empty-state">
+    <div class="empty-state-icon"><i class="bi bi-buildings"></i></div>
+    <div class="empty-state-title">No businesses found</div>
+    <div class="empty-state-sub">Try a different search or filter.</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

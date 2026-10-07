@@ -1,0 +1,287 @@
+{% extends 'console/base.html' %}
+{% load humanize %}
+{% block title %}Owner Console — CreditBook{% endblock %}
+{% block page_title %}Owner Console{% endblock %}
+
+{% block content %}
+<div class="stagger">
+  <div class="page-header">
+    <div>
+      <div class="page-header-title">Platform Overview</div>
+      <div class="page-header-sub">{% now "l, N j, Y" %} · {{ total_tenants }} business{{ total_tenants|pluralize:"es" }} on CreditBook</div>
+    </div>
+    <a href="{% url 'console:businesses' %}" class="btn-sv btn-sv-primary">
+      <i class="bi bi-buildings"></i> Manage Businesses
+    </a>
+  </div>
+
+  <!-- Revenue KPIs -->
+  <div class="row g-3 mb-3">
+    <div class="col-6 col-lg-3">
+      <div class="stat-card green">
+        <div class="stat-icon green"><i class="bi bi-arrow-repeat"></i></div>
+        <div class="stat-value">₦{{ mrr|floatformat:0|intcomma }}</div>
+        <div class="stat-label">MRR</div>
+        <div class="console-kpi-sub">ARR ₦{{ arr|floatformat:0|intcomma }} · {{ active_count }} active × ₦{{ subscription_price|floatformat:0|intcomma }}</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card blue">
+        <div class="stat-icon blue"><i class="bi bi-cash-stack"></i></div>
+        <div class="stat-value">₦{{ revenue_this_month|floatformat:0|intcomma }}</div>
+        <div class="stat-label">Collected This Month</div>
+        <div class="console-kpi-sub">
+          {% if revenue_change is not None %}
+            <span class="{% if revenue_change >= 0 %}up{% else %}down{% endif %}">{% if revenue_change >= 0 %}▲{% else %}▼{% endif %} {{ revenue_change }}%</span> vs last month
+          {% else %}Last month ₦{{ revenue_last_month|floatformat:0|intcomma }}{% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card green">
+        <div class="stat-icon green"><i class="bi bi-wallet2"></i></div>
+        <div class="stat-value">₦{{ revenue_all_time|floatformat:0|intcomma }}</div>
+        <div class="stat-label">Lifetime Revenue</div>
+        <div class="console-kpi-sub">{{ conversion_rate }}% of businesses have paid</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card red">
+        <div class="stat-icon red"><i class="bi bi-exclamation-triangle-fill"></i></div>
+        <div class="stat-value">{{ failed_payments_30d }}</div>
+        <div class="stat-label">Failed Payments (30d)</div>
+        <div class="console-kpi-sub"><a href="{% url 'console:payments' %}?status=failed" style="color:inherit;">View failures →</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer KPIs -->
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <a href="{% url 'console:businesses' %}?status=active" class="text-decoration-none">
+        <div class="stat-card green">
+          <div class="stat-value">{{ active_count }}</div>
+          <div class="stat-label">Active Subscribers</div>
+          <div class="console-kpi-sub">{% if overdue_count %}{{ overdue_count }} renewal{{ overdue_count|pluralize }} overdue{% else %}All renewals current{% endif %}</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-lg-3">
+      <a href="{% url 'console:businesses' %}?status=trial" class="text-decoration-none">
+        <div class="stat-card blue">
+          <div class="stat-value">{{ trial_count }}</div>
+          <div class="stat-label">On Trial</div>
+          <div class="console-kpi-sub">{{ new_this_month }} new signup{{ new_this_month|pluralize }} this month</div>
+        </div>
+      </a>
+    </div>
+    <div class="col-6 col-lg-3">
+      <div class="stat-card amber">
+        <div class="stat-value">{{ at_risk_count }}</div>
+        <div class="stat-label">At Risk</div>
+        <div class="console-kpi-sub">Read-only, past due, paused or suspended</div>
+      </div>
+    </div>
+    <div class="col-6 col-lg-3">
+      <a href="{% url 'console:businesses' %}?status=disabled" class="text-decoration-none">
+        <div class="stat-card red">
+          <div class="stat-value">{{ disabled_count }}</div>
+          <div class="stat-label">Disabled</div>
+          <div class="console-kpi-sub">{{ cancelled_count }} terminated subscription{{ cancelled_count|pluralize }}</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-xl-6">
+      <div class="glass-card p-4 h-100">
+        <div class="console-section-title mb-1">Revenue collected</div>
+        <div class="console-kpi-sub mb-3">Successful payments per month, last 12 months</div>
+        <div class="chart-box"><canvas id="revenueChart" aria-label="Monthly revenue bar chart" role="img"></canvas></div>
+      </div>
+    </div>
+    <div class="col-12 col-xl-6">
+      <div class="glass-card p-4 h-100">
+        <div class="console-section-title mb-1">New businesses</div>
+        <div class="console-kpi-sub mb-3">Signups per month, last 12 months</div>
+        <div class="chart-box"><canvas id="signupChart" aria-label="Monthly signups bar chart" role="img"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <!-- Status breakdown -->
+    <div class="col-12 col-xl-4">
+      <div class="glass-card p-4 h-100">
+        <div class="console-section-title mb-3">Subscription status</div>
+        {% for row in status_rows %}
+        <a href="{% url 'console:businesses' %}?status={{ row.key }}" class="d-block text-decoration-none mb-3">
+          <div class="d-flex justify-content-between" style="font-size:13px;color:var(--text-2);">
+            <span>{{ row.label }}</span><span style="color:var(--text);font-weight:700;">{{ row.count }}</span>
+          </div>
+          <div style="height:6px;background:var(--surface-2);border-radius:4px;overflow:hidden;margin-top:4px;">
+            <div style="height:100%;border-radius:4px;width:{% widthratio row.count total_tenants|default:1 100 %}%;background:{% if row.key == 'active' %}var(--accent){% elif row.key == 'trial' %}var(--accent-blue){% elif row.key == 'suspended' %}var(--accent-3){% elif row.key == 'cancelled' %}var(--text-3){% else %}var(--accent-2){% endif %};"></div>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Trials ending -->
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="glass-card p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="console-section-title">Trials ending soon</div>
+          <a href="{% url 'console:businesses' %}?status=trial_ending" style="font-size:12px;color:var(--accent-blue);">All</a>
+        </div>
+        {% if trials_ending %}
+        <ul class="console-list">
+          {% for t in trials_ending %}
+          <li>
+            <div class="avatar" style="width:32px;height:32px;font-size:12px;flex-shrink:0;">{{ t.business_name|slice:":1"|upper }}</div>
+            <div style="flex:1;min-width:0;">
+              <a href="{% url 'console:business_detail' t.pk %}">{{ t.business_name }}</a>
+              <div class="meta">{{ t.owner.email|default:t.owner.username }}</div>
+            </div>
+            <span class="sv-badge badge-amber">{{ t.trial_ends_at|naturalday }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <div class="console-kpi-sub">No trials end in the next 7 days.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Recent signups -->
+    <div class="col-12 col-md-6 col-xl-4">
+      <div class="glass-card p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="console-section-title">Latest signups</div>
+          <a href="{% url 'console:businesses' %}" style="font-size:12px;color:var(--accent-blue);">All</a>
+        </div>
+        <ul class="console-list">
+          {% for t in recent_signups %}
+          <li>
+            <div class="avatar" style="width:32px;height:32px;font-size:12px;flex-shrink:0;">{{ t.business_name|slice:":1"|upper }}</div>
+            <div style="flex:1;min-width:0;">
+              <a href="{% url 'console:business_detail' t.pk %}">{{ t.business_name }}</a>
+              <div class="meta">{{ t.created_at|naturaltime }}</div>
+            </div>
+            {% include 'console/_status_badge.html' %}
+          </li>
+          {% empty %}
+          <li class="meta">No businesses yet.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <!-- Recent payments -->
+    <div class="col-12 col-xl-7">
+      <div class="glass-card p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="console-section-title">Recent payments</div>
+          <a href="{% url 'console:payments' %}" style="font-size:12px;color:var(--accent-blue);">All payments</a>
+        </div>
+        {% if recent_payments %}
+        <div class="table-wrapper">
+          <table class="sv-table">
+            <thead><tr><th>Business</th><th>Amount</th><th>Status</th><th>When</th></tr></thead>
+            <tbody>
+              {% for log in recent_payments %}
+              <tr>
+                <td><a class="business-link" href="{% url 'console:business_detail' log.tenant_id %}">{{ log.tenant.business_name }}</a>
+                  {% if log.payment_method == 'manual' %}<span class="sv-badge badge-gray">Manual</span>{% endif %}</td>
+                <td style="font-weight:700;">₦{{ log.amount|floatformat:0|intcomma }}</td>
+                <td><span class="sv-badge {% if log.status == 'success' %}badge-green{% elif log.status == 'failed' %}badge-red{% elif log.status == 'pending' %}badge-amber{% else %}badge-gray{% endif %}">{{ log.get_status_display }}</span></td>
+                <td style="color:var(--text-2);white-space:nowrap;">{{ log.created_at|naturaltime }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% else %}
+        <div class="console-kpi-sub">No payments yet.</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Recent admin actions -->
+    <div class="col-12 col-xl-5">
+      <div class="glass-card p-4 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <div class="console-section-title">Recent admin actions</div>
+          <a href="{% url 'console:activity' %}" style="font-size:12px;color:var(--accent-blue);">Audit log</a>
+        </div>
+        <ul class="console-list">
+          {% for a in recent_actions %}
+          <li>
+            <div style="flex:1;min-width:0;">
+              <div>{{ a.get_action_display }} · {% if a.tenant_id %}<a href="{% url 'console:business_detail' a.tenant_id %}">{{ a.tenant_name }}</a>{% else %}{{ a.tenant_name }}{% endif %}</div>
+              <div class="meta">{{ a.actor.username|default:"system" }} · {{ a.created_at|naturaltime }}</div>
+            </div>
+          </li>
+          {% empty %}
+          <li class="meta">No admin actions recorded yet.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{ chart_labels|json_script:"chart-labels" }}
+{{ chart_revenue|json_script:"chart-revenue" }}
+{{ chart_signups|json_script:"chart-signups" }}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+  const read = id => JSON.parse(document.getElementById(id).textContent);
+  const labels = read('chart-labels');
+  const charts = [];
+
+  function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  function barChart(canvasId, data, colorVar, formatValue) {
+    const chart = new Chart(document.getElementById(canvasId), {
+      type: 'bar',
+      data: { labels, datasets: [{ data, backgroundColor: css(colorVar), borderRadius: 4, maxBarThickness: 28 }] },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: { callbacks: { label: ctx => formatValue(ctx.parsed.y) } },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: css('--text-3'), maxRotation: 0, autoSkip: true } },
+          y: { beginAtZero: true, grid: { color: css('--border') }, border: { display: false },
+               ticks: { color: css('--text-3'), precision: 0, callback: v => formatValue(v) } },
+        },
+      },
+    });
+    charts.push({ chart, colorVar });
+  }
+
+  const naira = v => '₦' + Number(v).toLocaleString();
+  barChart('revenueChart', read('chart-revenue'), '--accent', naira);
+  barChart('signupChart', read('chart-signups'), '--accent-blue', v => Number(v).toLocaleString());
+
+  window.addEventListener('sv-theme-change', () => {
+    charts.forEach(({ chart }) => {
+      chart.options.scales.x.ticks.color = css('--text-3');
+      chart.options.scales.y.ticks.color = css('--text-3');
+      chart.options.scales.y.grid.color = css('--border');
+      chart.update();
+    });
+  });
+})();
+</script>
+{% endblock %}

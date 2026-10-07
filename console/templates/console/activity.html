@@ -1,0 +1,50 @@
+{% extends 'console/base.html' %}
+{% block title %}Audit Log — Owner Console{% endblock %}
+{% block page_title %}Audit Log{% endblock %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="page-header">
+    <div>
+      <div class="page-header-title">Audit Log</div>
+      <div class="page-header-sub">Every change made from the owner console</div>
+    </div>
+  </div>
+
+  <div class="glass-card p-3 mb-4">
+    <div class="filter-pills">
+      <a class="filter-pill {% if not action %}active{% endif %}" href="?">All</a>
+      {% for key, label in actions %}
+      <a class="filter-pill {% if action == key %}active{% endif %}" href="?action={{ key }}">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if page.object_list %}
+  <div class="table-wrapper">
+    <table class="sv-table">
+      <thead><tr><th>When</th><th>Business</th><th>Action</th><th>Status change</th><th>Note</th><th>By</th></tr></thead>
+      <tbody>
+        {% for a in page.object_list %}
+        <tr>
+          <td style="white-space:nowrap;color:var(--text-2);">{{ a.created_at|date:"M j, Y H:i" }}</td>
+          <td>{% if a.tenant_id %}<a class="business-link" href="{% url 'console:business_detail' a.tenant_id %}">{{ a.tenant_name }}</a>{% else %}{{ a.tenant_name }} <span class="sv-badge badge-gray">deleted</span>{% endif %}</td>
+          <td><span class="sv-badge {% if a.action == 'activate' or a.action == 'enable' %}badge-green{% elif a.action == 'extend_trial' %}badge-blue{% else %}badge-red{% endif %}">{{ a.get_action_display }}</span></td>
+          <td style="color:var(--text-2);">{% if a.previous_status != a.new_status %}{{ a.previous_status }} → {{ a.new_status }}{% else %}—{% endif %}</td>
+          <td style="font-size:13px;color:var(--text-2);max-width:320px;">{{ a.note|default:"—" }}</td>
+          <td style="color:var(--text-2);">{{ a.actor.username|default:"—" }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include 'console/_pagination.html' %}
+  {% else %}
+  <div class="glass-card empty-state">
+    <div class="empty-state-icon"><i class="bi bi-journal-text"></i></div>
+    <div class="empty-state-title">No admin actions yet</div>
+    <div class="empty-state-sub">Actions you take on a business will be recorded here.</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

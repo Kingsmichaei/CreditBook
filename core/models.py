@@ -24,6 +24,16 @@ def clear_current_tenant():
 
 
 class Tenant(models.Model):
+    SUBSCRIPTION_STATUS_CHOICES = [
+        ('trial', 'Trial'),
+        ('active', 'Active'),
+        ('read_only', 'Read Only'),
+        ('past_due', 'Past Due'),
+        ('paused', 'Paused'),
+        ('suspended', 'Suspended'),
+        ('cancelled', 'Cancelled'),
+    ]
+
     owner = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='owned_tenants')
     business_name = models.CharField(max_length=200)
     slug = models.SlugField(max_length=120, unique=True, blank=True)
@@ -33,21 +43,15 @@ class Tenant(models.Model):
     nomba_token_key = models.CharField(max_length=200, blank=True)
     nomba_card_type = models.CharField(max_length=50, blank=True)
     nomba_card_pan = models.CharField(max_length=50, blank=True)
-    subscription_status = models.CharField(
-        max_length=20,
-        choices=[
-            ('trial', 'Trial'),
-            ('active', 'Active'),
-            ('read_only', 'Read Only'),
-            ('paused', 'Paused'),
-            ('cancelled', 'Cancelled'),
-        ],
-        default='trial',
-    )
+    subscription_status = models.CharField(max_length=20, choices=SUBSCRIPTION_STATUS_CHOICES, default='trial')
     subscription_start = models.DateField(null=True, blank=True)
     next_billing_date = models.DateField(null=True, blank=True)
     failed_payment_count = models.IntegerField(default=0)
     last_payment_attempt = models.DateTimeField(null=True, blank=True)
+    # Platform-level kill switch set by the SaaS owner; independent of subscription state.
+    is_disabled = models.BooleanField(default=False)
+    disabled_at = models.DateTimeField(null=True, blank=True)
+    disabled_reason = models.TextField(blank=True)
 
     def trial_days_left(self):
         if not self.trial_ends_at:
@@ -68,7 +72,7 @@ class Tenant(models.Model):
         return self.subscription_status == 'active'
 
     def update_subscription_state(self):
-        if self.subscription_status in ['active', 'cancelled']:
+        if self.subscription_status in ['active', 'suspended', 'cancelled']:
             return
         if not self.trial_ends_at:
             return

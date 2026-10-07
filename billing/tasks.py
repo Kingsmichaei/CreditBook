@@ -112,7 +112,7 @@ def process_tenant_charge(self, tenant_id):
             billing_log.nomba_txn_id = data.get('id', '') or data.get('transactionId', '')
             billing_log.raw_response = data
             billing_log.save(update_fields=['status', 'nomba_txn_id', 'raw_response'])
-            if tenant.subscription_status in ['trial', 'read_only', 'past_due', 'paused']:
+            if tenant.subscription_status in ['trial', 'read_only', 'past_due', 'paused', 'suspended', 'cancelled']:
                 tenant.subscription_status = 'active'
             tenant.next_billing_date = timezone.now().date() + timedelta(days=30)
             tenant.failed_payment_count = 0

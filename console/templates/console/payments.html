@@ -1,0 +1,64 @@
+{% extends 'console/base.html' %}
+{% load humanize %}
+{% block title %}Payments — Owner Console{% endblock %}
+{% block page_title %}Payments{% endblock %}
+
+{% block content %}
+<div class="fade-up">
+  <div class="page-header">
+    <div>
+      <div class="page-header-title">Payments</div>
+      <div class="page-header-sub">Every payment attempt across all businesses</div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-md-4"><div class="stat-card green"><div class="stat-value">₦{{ total_success|floatformat:0|intcomma }}</div><div class="stat-label">Successful</div></div></div>
+    <div class="col-6 col-md-4"><div class="stat-card amber"><div class="stat-value">₦{{ total_pending|floatformat:0|intcomma }}</div><div class="stat-label">Pending</div></div></div>
+    <div class="col-6 col-md-4"><div class="stat-card red"><div class="stat-value">₦{{ total_failed|floatformat:0|intcomma }}</div><div class="stat-label">Failed</div></div></div>
+  </div>
+
+  <div class="glass-card p-3 mb-4">
+    <form method="get">
+      <input type="hidden" name="status" value="{{ status }}">
+      <div class="search-bar">
+        <span class="search-icon"><i class="bi bi-search"></i></span>
+        <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="Search business, order reference or transaction ID...">
+      </div>
+    </form>
+    <div class="filter-pills mt-3">
+      <a class="filter-pill {% if not status %}active{% endif %}" href="?q={{ q|urlencode }}">All</a>
+      {% for key, label in statuses %}
+      <a class="filter-pill {% if status == key %}active{% endif %}" href="?q={{ q|urlencode }}&status={{ key }}">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if page.object_list %}
+  <div class="table-wrapper">
+    <table class="sv-table">
+      <thead><tr><th>Date</th><th>Business</th><th>Amount</th><th>Status</th><th>Method</th><th>Reference</th></tr></thead>
+      <tbody>
+        {% for log in page.object_list %}
+        <tr>
+          <td style="white-space:nowrap;color:var(--text-2);">{{ log.created_at|date:"M j, Y H:i" }}</td>
+          <td><a class="business-link" href="{% url 'console:business_detail' log.tenant_id %}">{{ log.tenant.business_name }}</a></td>
+          <td style="font-weight:700;">₦{{ log.amount|floatformat:0|intcomma }}</td>
+          <td><span class="sv-badge {% if log.status == 'success' %}badge-green{% elif log.status == 'failed' %}badge-red{% elif log.status == 'pending' %}badge-amber{% else %}badge-gray{% endif %}">{{ log.get_status_display }}</span></td>
+          <td>{% if log.payment_method == 'manual' %}<span class="sv-badge badge-gray">Manual</span>{% elif log.is_tokenized %}Card{% else %}{{ log.payment_method|default:"Checkout" }}{% endif %}</td>
+          <td style="font-size:12px;color:var(--text-3);">{{ log.nomba_txn_id|default:log.order_reference|truncatechars:28 }}
+            {% if log.failure_reason %}<div style="color:var(--accent-3);">{{ log.failure_reason|truncatechars:60 }}</div>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include 'console/_pagination.html' %}
+  {% else %}
+  <div class="glass-card empty-state">
+    <div class="empty-state-icon"><i class="bi bi-receipt"></i></div>
+    <div class="empty-state-title">No payments found</div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

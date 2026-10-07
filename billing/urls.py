@@ -9,4 +9,6 @@ urlpatterns = [
     path('webhook/nomba/', views.nomba_webhook_view, name='nomba_webhook'),
     path('suspended/', views.account_suspended_view, name='account_suspended'),
     path('paused/', views.account_paused_view, name='account_paused'),
+    path('cancelled/', views.account_cancelled_view, name='account_cancelled'),
+    path('disabled/', views.account_disabled_view, name='account_disabled'),
 ]

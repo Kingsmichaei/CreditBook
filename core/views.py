@@ -28,6 +28,8 @@ class TenantAwareLoginView(auth_views.LoginView):
 
         if self.request.user.is_authenticated and TenantMembership.objects.filter(user=self.request.user).exists():
             return reverse('dashboard')
+        if self.request.user.is_superuser:
+            return reverse('console:overview')
         return reverse('register')
 
 
