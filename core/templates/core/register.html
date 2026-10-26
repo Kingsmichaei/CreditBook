@@ -167,6 +167,11 @@
     }
 
     .panel-logo {
+      display: inline-flex; align-items: center; gap: 12px;
+      text-decoration: none;
+      margin-bottom: 40px;
+    }
+    .panel-logo span {
       font-family: var(--font-d);
       font-size: 1.75rem;
       font-weight: 800;
@@ -174,9 +179,6 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      text-decoration: none;
-      display: inline-block;
-      margin-bottom: 48px;
       letter-spacing: -.02em;
     }
 
@@ -453,6 +455,8 @@
 
     <!-- ══ LEFT PANEL ══════════════════════════ -->
     <div class="left-panel">
+      <a href="{% url 'landing' %}" class="panel-logo">{% include 'core/_logo.html' with size=48 %}<span>CreditBook</span></a>
+
       <div class="panel-tagline">
         <i class="bi bi-stars"></i> Multi-Business Platform
       </div>
@@ -499,6 +503,7 @@
 
         <!-- Brand on mobile -->
         <div class="form-brand">
+          {% include 'core/_logo.html' with size=40 %}
           <div class="form-brand-text">CreditBook</div>
         </div>
 

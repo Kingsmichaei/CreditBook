@@ -14,4 +14,8 @@
   /* Suppress colour transitions while the theme is being applied, so everything switches in one frame. */
   .sv-no-transition *, .sv-no-transition *::before, .sv-no-transition *::after { transition: none !important; }
   .sv-no-transition .theme-toggle-thumb { transition: transform 0.25s ease !important; }
+
+  /* Brand logo (core/_logo.html). The navy mark needs a light tile to stay legible on dark backgrounds. */
+  .cb-logo { display: inline-block; flex-shrink: 0; box-sizing: border-box; object-fit: contain; border-radius: 22%; }
+  [data-theme="dark"] .cb-logo { background: #fff; padding: 3px; }
 </style>

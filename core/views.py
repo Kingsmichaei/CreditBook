@@ -149,28 +149,6 @@ def delete_account(request):
 
 
 @login_required
-def delete_account_confirm(request, token):
-    try:
-        payload = signing.loads(token, salt='account-delete', max_age=60 * 60)
-    except signing.BadSignature:
-        messages.error(request, 'That confirmation link is invalid.')
-        return redirect('delete_account')
-    except signing.SignatureExpired:
-        messages.error(request, 'That confirmation link has expired. Please request a new one.')
-        return redirect('delete_account')
-
-    if payload.get('user_id') != request.user.pk:
-        messages.error(request, 'That confirmation link does not match your account.')
-        return redirect('dashboard')
-
-    user = request.user
-    logout(request)
-    user.delete()
-    messages.success(request, 'Your account was deleted successfully.')
-    return redirect('landing')
-
-
-@login_required
 def profile_view(request):
     tenant = getattr(request, 'tenant', None)
     if not tenant:

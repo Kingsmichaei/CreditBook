@@ -172,15 +172,17 @@
     }
 
     .hero-logo {
+      display: inline-flex; align-items: center; gap: 12px;
+      text-decoration: none;
+      margin-bottom: 32px;
+    }
+    .hero-logo span {
       font-family: var(--font-d);
       font-size: 1.5rem; font-weight: 800;
       background: var(--brand-grad);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      text-decoration: none;
-      display: inline-block;
-      margin-bottom: 32px;
       letter-spacing: -.02em;
     }
 
@@ -398,7 +400,7 @@
 
     <!-- ══ LEFT HERO ═══════════════════════════ -->
     <div class="login-hero">
-      <a href="#" class="hero-logo">CreditBook</a>
+      <a href="{% url 'landing' %}" class="hero-logo">{% include 'core/_logo.html' with size=44 %}<span>CreditBook</span></a>
       <h1 class="hero-title">Welcome back to your business workspace.</h1>
       <p class="hero-desc">
         Open your dashboard, track sales and expenses, and keep your customer records

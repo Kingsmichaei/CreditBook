@@ -160,18 +160,18 @@ class AccountManagementTests(TestCase):
 class StaffNavigationTests(TestCase):
     def test_staff_link_is_visible_for_owner_without_superuser(self):
         user = get_user_model().objects.create_user(username='owneruser', email='owner@example.com', password='StrongPass123')
-        tenant = Tenant.objects.create(owner=user, business_name='Staff Co', slug='staffco')
+        tenant = Tenant.objects.create(owner=user, business_name='Acme Traders', slug='acme1')
         TenantMembership.objects.create(user=user, tenant=tenant, role='owner')
 
         self.client.force_login(user)
         response = self.client.get(reverse('dashboard'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Staff')
+        self.assertContains(response, reverse('staff_list'))
 
     def test_staff_link_is_hidden_for_staff_member(self):
         owner = get_user_model().objects.create_user(username='owneruser2', email='owner2@example.com', password='StrongPass123')
-        tenant = Tenant.objects.create(owner=owner, business_name='Staff Co', slug='staffco2')
+        tenant = Tenant.objects.create(owner=owner, business_name='Acme Traders', slug='acme2')
         TenantMembership.objects.create(user=owner, tenant=tenant, role='owner')
 
         staff_user = get_user_model().objects.create_user(username='staffuser', email='staff@example.com', password='StrongPass123')
@@ -181,13 +181,14 @@ class StaffNavigationTests(TestCase):
         response = self.client.get(reverse('dashboard'))
 
         self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, reverse('staff_list'))
         self.assertNotContains(response, 'Staff')
         self.assertNotContains(response, 'Billing')
         self.assertNotContains(response, 'Profile')
 
     def test_billing_button_is_hidden_for_staff_member_on_dashboard(self):
         owner = get_user_model().objects.create_user(username='owneruser3', email='owner3@example.com', password='StrongPass123')
-        tenant = Tenant.objects.create(owner=owner, business_name='Billing Co', slug='billingco')
+        tenant = Tenant.objects.create(owner=owner, business_name='Acme Traders', slug='acme3')
         TenantMembership.objects.create(user=owner, tenant=tenant, role='owner')
 
         staff_user = get_user_model().objects.create_user(username='staffuser2', email='staff2@example.com', password='StrongPass123')
@@ -197,13 +198,16 @@ class StaffNavigationTests(TestCase):
         response = self.client.get(reverse('dashboard'))
 
         self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, reverse('billing_dashboard'))
         self.assertNotContains(response, 'Billing')
 
 
 class StaffAuthenticationTests(TestCase):
     def test_staff_can_create_login_account(self):
-        self.admin = get_user_model().objects.create_user(username='admin', password='secret123')
-        self.client.force_login(self.admin)
+        owner = get_user_model().objects.create_user(username='admin', email='admin@example.com', password='secret123')
+        tenant = Tenant.objects.create(owner=owner, business_name='Acme Traders', slug='acme-staff')
+        TenantMembership.objects.create(user=owner, tenant=tenant, role='owner')
+        self.client.force_login(owner)
 
         response = self.client.post(reverse('staff_add'), {
             'name': 'Jane Staff',
@@ -218,7 +222,25 @@ class StaffAuthenticationTests(TestCase):
             'confirm_password': 'staffpass123',
         })
 
-        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('staff_list'), fetch_redirect_response=False)
         self.assertTrue(get_user_model().objects.filter(username='jane@example.com').exists())
         self.assertTrue(self.client.login(username='jane@example.com', password='staffpass123'))
-        self.assertTrue(Staff.objects.filter(name='Jane Staff', user__username='jane@example.com').exists())
+        self.assertTrue(Staff.objects.filter(name='Jane Staff', user__username='jane@example.com', tenant=tenant).exists())
+        self.assertTrue(TenantMembership.objects.filter(user__username='jane@example.com', tenant=tenant, role='staff').exists())
+
+    def test_member_without_manage_rights_cannot_add_staff(self):
+        owner = get_user_model().objects.create_user(username='owner5', email='owner5@example.com', password='secret123')
+        tenant = Tenant.objects.create(owner=owner, business_name='Acme Traders', slug='acme-staff2')
+        TenantMembership.objects.create(user=owner, tenant=tenant, role='owner')
+        cashier = get_user_model().objects.create_user(username='cashier', email='cashier@example.com', password='secret123')
+        TenantMembership.objects.create(user=cashier, tenant=tenant, role='staff')
+        self.client.force_login(cashier)
+
+        response = self.client.post(reverse('staff_add'), {
+            'name': 'Sneaky Hire', 'role': 'cashier', 'email': 'sneaky@example.com',
+            'salary': '0', 'is_active': 'on', 'date_joined': '2026-07-26',
+            'password': 'staffpass123', 'confirm_password': 'staffpass123',
+        })
+
+        self.assertRedirects(response, reverse('dashboard'), fetch_redirect_response=False)
+        self.assertFalse(Staff.objects.filter(name='Sneaky Hire').exists())

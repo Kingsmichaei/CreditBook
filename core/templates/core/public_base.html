@@ -149,11 +149,6 @@
 
     .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
     .brand:hover { color: var(--text); }
-    .brand-mark {
-      width: 30px; height: 30px; border-radius: 8px;
-      background: var(--brand); color: #fff;
-      display: grid; place-items: center; font-size: 15px;
-    }
 
     .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; margin: 0; padding: 0; }
     .nav-links a {
@@ -227,7 +222,7 @@
   <div class="container">
     <nav class="nav" aria-label="Main">
       <a href="{% url 'landing' %}" class="brand" aria-label="CreditBook home">
-        <span class="brand-mark"><i class="bi bi-journal-bookmark-fill"></i></span>
+        {% include 'core/_logo.html' with size=34 %}
         CreditBook
       </a>
 
@@ -283,7 +278,7 @@
     <div class="footer-grid">
       <div class="footer-brand">
         <a href="{% url 'landing' %}" class="brand">
-          <span class="brand-mark"><i class="bi bi-journal-bookmark-fill"></i></span>
+          {% include 'core/_logo.html' with size=34 %}
           CreditBook
         </a>
         <p class="footer-about">Sales, expenses and customer debts for small businesses, kept in one place.</p>

@@ -11,7 +11,6 @@ urlpatterns = [
     path('terms-of-service/', views.terms_of_service_view, name='terms_of_service'),
     path('profile/', views.profile_view, name='profile_view'),
     path('account/delete/', views.delete_account, name='delete_account'),
-    path('account/delete/confirm/<str:token>/', views.delete_account_confirm, name='delete_account_confirm'),
 
     # Customers
     path('customers/', views.customers_list, name='customers_list'),

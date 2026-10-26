@@ -137,18 +137,7 @@
     .sidebar-brand {
       padding: 24px 20px 20px;
       border-bottom: 1px solid var(--border);
-    }
-
-    .brand-logo {
-      width: 44px; height: 44px;
-      background: linear-gradient(135deg, var(--accent), #00b37a);
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-display);
-      font-weight: 800; font-size: 18px;
-      color: #001a0f;
-      margin-bottom: 10px;
-      box-shadow: 0 4px 16px rgba(0,229,160,0.3);
+      display: flex; align-items: center; gap: 12px;
     }
 
     .brand-name {
@@ -919,8 +908,11 @@
 <!-- ─── Sidebar ──────────────────────────────────────────── -->
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-brand">
-    <div class="brand-name">CreditBook</div>
-    <div class="brand-sub mt-1">{% block brand_sub %}Business Suite{% endblock %}</div>
+    {% include 'core/_logo.html' with size=40 %}
+    <div>
+      <div class="brand-name">CreditBook</div>
+      <div class="brand-sub mt-1">{% block brand_sub %}Business Suite{% endblock %}</div>
+    </div>
   </div>
 
   <nav class="sidebar-nav">
