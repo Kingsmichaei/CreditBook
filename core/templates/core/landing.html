@@ -1,1219 +1,564 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en" data-theme="light">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="icon" type="image/png" sizes="96x96" href="{% static 'icons/favicon-96x96.png' %}">
-  <link rel="icon" href="{% static 'icons/favicon.svg' %}" type="image/svg+xml" sizes="any">
-  <link rel="icon" href="{% static 'icons/favicon.ico' %}">
-  <link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
-  <link rel="manifest" href="{% static 'icons/site.webmanifest' %}">
-  <title>CreditBook | Never Lose Track of Customer Debts</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-
-  <style>
-    /* ══════════════════════════════════════════
-       DESIGN TOKENS
-    ══════════════════════════════════════════ */
-    :root {
-      --brand:   #2563EB;
-      --brand-2: #22C55E;
-      --brand-grad: linear-gradient(135deg, #2563EB, #22C55E);
-      --font-d: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-      --font-b: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
-      --r:   22px;
-      --r-sm: 14px;
-      --r-xs: 10px;
-      --ease: 0.3s cubic-bezier(.4,0,.2,1);
-    }
-
-    [data-theme="dark"] {
-      --bg:        #060d1a;
-      --bg-2:      #0c1528;
-      --surface:   rgba(255,255,255,.04);
-      --surface-2: rgba(255,255,255,.07);
-      --surface-h: rgba(255,255,255,.09);
-      --border:    rgba(255,255,255,.08);
-      --border-2:  rgba(255,255,255,.14);
-      --text:      #eef2ff;
-      --text-2:    rgba(238,242,255,.62);
-      --text-3:    rgba(238,242,255,.35);
-      --glass:     rgba(8,14,28,.78);
-      --blur:      blur(28px) saturate(180%);
-      --shadow:    0 24px 64px rgba(0,0,0,.55);
-      --shadow-sm: 0 8px 28px rgba(0,0,0,.35);
-      --mesh-a:    rgba(37,99,235,.13);
-      --mesh-b:    rgba(34,197,94,.09);
-    }
-
-    [data-theme="light"] {
-      --bg:        #f0f4fb;
-      --bg-2:      #e6edf8;
-      --surface:   rgba(255,255,255,.72);
-      --surface-2: rgba(255,255,255,.9);
-      --surface-h: rgba(255,255,255,.97);
-      --border:    rgba(0,0,0,.07);
-      --border-2:  rgba(0,0,0,.12);
-      --text:      #0a1628;
-      --text-2:    rgba(10,22,40,.63);
-      --text-3:    rgba(10,22,40,.37);
-      --glass:     rgba(240,244,251,.82);
-      --blur:      blur(28px) saturate(180%);
-      --shadow:    0 24px 64px rgba(37,99,235,.09);
-      --shadow-sm: 0 8px 28px rgba(37,99,235,.06);
-      --mesh-a:    rgba(37,99,235,.07);
-      --mesh-b:    rgba(34,197,94,.05);
-    }
-
-    /* ══════════════════════════════════════════
-       BASE
-    ══════════════════════════════════════════ */
-    *, *::before, *::after { box-sizing: border-box; }
-
-    html { scroll-behavior: smooth; }
-
-    body {
-      font-family: var(--font-b);
-      background: var(--bg);
-      color: var(--text);
-      overflow-x: hidden;
-      transition: background var(--ease), color var(--ease);
-    }
-
-    /* Mesh background */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(ellipse 80% 55% at -5% 0%, var(--mesh-a) 0%, transparent 55%),
-        radial-gradient(ellipse 60% 45% at 105% 100%, var(--mesh-b) 0%, transparent 50%),
-        radial-gradient(ellipse 40% 35% at 50% 50%, rgba(37,99,235,.03) 0%, transparent 60%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .container { position: relative; z-index: 1; }
-
-    /* ══════════════════════════════════════════
-       NAVBAR
-    ══════════════════════════════════════════ */
-    .site-nav-wrap {
-      padding: 20px 0 0;
-      position: sticky;
-      top: 0;
-      z-index: 999;
-      background: transparent;
-    }
-
-    .site-nav {
-      background: var(--glass);
-      backdrop-filter: var(--blur);
-      -webkit-backdrop-filter: var(--blur);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 14px 20px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: background var(--ease), border-color var(--ease);
-    }
-
-    .nav-logo {
-      font-family: var(--font-d);
-      font-size: 1.55rem;
-      font-weight: 800;
-      background: var(--brand-grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-decoration: none;
-      letter-spacing: -.02em;
-      flex-shrink: 0;
-    }
-
-    .nav-right {
-      margin-left: auto;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .theme-btn {
-      width: 38px; height: 38px;
-      border-radius: var(--r-sm);
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text-2);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      font-size: 15px;
-      transition: all var(--ease);
-      flex-shrink: 0;
-    }
-    .theme-btn:hover { background: var(--surface-2); color: var(--text); border-color: var(--border-2); }
-
-    .btn-nav-outline {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 9px 18px;
-      border-radius: var(--r-sm);
-      border: 1px solid var(--border-2);
-      background: var(--surface);
-      color: var(--text);
-      font-family: var(--font-b);
-      font-size: 14px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all var(--ease);
-      white-space: nowrap;
-    }
-    .btn-nav-outline:hover { background: var(--surface-2); color: var(--text); }
-
-    .btn-nav-primary {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 9px 20px;
-      border-radius: var(--r-sm);
-      background: var(--brand-grad);
-      color: #fff;
-      font-family: var(--font-b);
-      font-size: 14px;
-      font-weight: 700;
-      text-decoration: none;
-      border: none;
-      transition: all var(--ease);
-      box-shadow: 0 4px 16px rgba(37,99,235,.3);
-      white-space: nowrap;
-    }
-    .btn-nav-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(37,99,235,.4); color: #fff; }
-
-    /* ══════════════════════════════════════════
-       GLASS CARD
-    ══════════════════════════════════════════ */
-    .glass-card {
-      background: var(--surface);
-      backdrop-filter: var(--blur);
-      -webkit-backdrop-filter: var(--blur);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      box-shadow: var(--shadow-sm);
-      transition: all var(--ease);
-    }
-
-    /* ══════════════════════════════════════════
-       HERO
-    ══════════════════════════════════════════ */
-    .hero { padding: 80px 0 90px; }
-
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      background: rgba(37,99,235,.12);
-      border: 1px solid rgba(37,99,235,.22);
-      color: #6ea8fe;
-      padding: 8px 16px;
-      border-radius: 30px;
-      font-size: 13px;
-      font-weight: 600;
-      margin-bottom: 22px;
-    }
-    [data-theme="light"] .hero-badge { background: rgba(37,99,235,.08); color: #2563EB; }
-
-    .hero h1 {
-      font-family: var(--font-d);
-      font-size: clamp(2.4rem, 5vw, 3.8rem);
-      font-weight: 800;
-      line-height: 1.08;
-      letter-spacing: -.03em;
-      color: var(--text);
-      margin-bottom: 0;
-    }
-
-    .hero-gradient-text {
-      background: var(--brand-grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .hero-desc {
-      color: var(--text-2);
-      font-size: 1.08rem;
-      line-height: 1.75;
-      margin: 22px 0 32px;
-    }
-
-    .hero-cta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      margin-bottom: 36px;
-    }
-
-    .btn-primary-lg {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 13px 28px;
-      background: var(--brand-grad);
-      color: #fff;
-      font-family: var(--font-b);
-      font-weight: 700;
-      font-size: 15px;
-      border-radius: var(--r-sm);
-      text-decoration: none;
-      border: none;
-      box-shadow: 0 6px 20px rgba(37,99,235,.35);
-      transition: all var(--ease);
-    }
-    .btn-primary-lg:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(37,99,235,.45); color: #fff; }
-
-    .btn-ghost-lg {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 13px 28px;
-      background: var(--surface);
-      color: var(--text);
-      font-family: var(--font-b);
-      font-weight: 600;
-      font-size: 15px;
-      border-radius: var(--r-sm);
-      text-decoration: none;
-      border: 1px solid var(--border-2);
-      transition: all var(--ease);
-    }
-    .btn-ghost-lg:hover { background: var(--surface-2); color: var(--text); }
-
-    .hero-checks { display: flex; flex-direction: column; gap: 10px; }
-    .hero-check-item {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 14px; color: var(--text-2);
-    }
-    .hero-check-item i { color: var(--brand-2); font-size: 15px; flex-shrink: 0; }
-
-    /* Hero Dashboard Card */
-    .dash-card {
-      background: var(--glass);
-      backdrop-filter: var(--blur);
-      -webkit-backdrop-filter: var(--blur);
-      border: 1px solid var(--border);
-      border-radius: 24px;
-      padding: 28px;
-      box-shadow: var(--shadow);
-    }
-
-    .dash-title {
-      font-family: var(--font-d);
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--text);
-      margin-bottom: 20px;
-      display: flex; align-items: center; gap: 8px;
-    }
-
-    .dash-title .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand-2); }
-
-    .stat-mini {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      padding: 16px;
-      margin-bottom: 14px;
-    }
-    .stat-mini-label { font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
-    .stat-mini-val {
-      font-family: var(--font-d);
-      font-size: 20px; font-weight: 800;
-      color: var(--text);
-    }
-
-    .dash-bar-row { display: flex; align-items: flex-end; gap: 5px; margin: 20px 0 10px; height: 56px; }
-    .dash-bar {
-      flex: 1; border-radius: 4px 4px 0 0;
-      background: rgba(37,99,235,.25);
-      transition: height var(--ease);
-    }
-    .dash-bar.hi { background: linear-gradient(180deg,#2563EB,rgba(37,99,235,.5)); }
-
-    .whatsapp-pill {
-      background: rgba(34,197,94,.1);
-      border: 1px solid rgba(34,197,94,.2);
-      color: #22C55E;
-      border-radius: 12px;
-      padding: 12px 14px;
-      font-size: 13px;
-      display: flex; align-items: center; gap: 9px;
-      margin-top: 16px;
-    }
-    .whatsapp-pill i { font-size: 16px; }
-
-    /* ══════════════════════════════════════════
-       SECTIONS SHARED
-    ══════════════════════════════════════════ */
-    .section-label {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .12em;
-      text-transform: uppercase;
-      color: var(--brand);
-      margin-bottom: 10px;
-    }
-    [data-theme="light"] .section-label { color: var(--brand); }
-
-    .section-title {
-      font-family: var(--font-d);
-      font-size: clamp(1.8rem, 3.5vw, 2.6rem);
-      font-weight: 800;
-      color: var(--text);
-      letter-spacing: -.025em;
-      line-height: 1.1;
-      margin-bottom: 12px;
-    }
-
-    .section-desc {
-      font-size: 1.05rem;
-      color: var(--text-2);
-      max-width: 580px;
-      margin: 0 auto;
-      line-height: 1.7;
-    }
-
-    /* ══════════════════════════════════════════
-       FEATURE CARDS
-    ══════════════════════════════════════════ */
-    .feature-card {
-      padding: 28px 26px;
-      border-radius: var(--r);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      height: 100%;
-      transition: all var(--ease);
-      position: relative;
-      overflow: hidden;
-    }
-    .feature-card::before {
-      content: '';
-      position: absolute;
-      top: -60px; right: -40px;
-      width: 140px; height: 140px;
-      border-radius: 50%;
-      opacity: 0;
-      transition: opacity var(--ease);
-    }
-    .feature-card:hover { border-color: var(--border-2); transform: translateY(-3px); box-shadow: var(--shadow-sm); }
-    .feature-card:hover::before { opacity: 1; }
-    .feature-card.c-blue::before  { background: radial-gradient(circle, rgba(37,99,235,.12), transparent 70%); }
-    .feature-card.c-green::before { background: radial-gradient(circle, rgba(34,197,94,.1), transparent 70%); }
-    .feature-card.c-yellow::before{ background: radial-gradient(circle, rgba(234,179,8,.1), transparent 70%); }
-    .feature-card.c-cyan::before  { background: radial-gradient(circle, rgba(6,182,212,.1), transparent 70%); }
-    .feature-card.c-pink::before  { background: radial-gradient(circle, rgba(244,63,94,.1), transparent 70%); }
-    .feature-card.c-purple::before{ background: radial-gradient(circle, rgba(139,92,246,.1), transparent 70%); }
-
-    .feat-icon {
-      width: 52px; height: 52px;
-      border-radius: 15px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 22px;
-      margin-bottom: 18px;
-    }
-    .feat-icon.blue   { background: rgba(37,99,235,.12);  color: #6ea8fe; }
-    .feat-icon.green  { background: rgba(34,197,94,.12);  color: #22C55E; }
-    .feat-icon.yellow { background: rgba(234,179,8,.12);  color: #EAB308; }
-    .feat-icon.cyan   { background: rgba(6,182,212,.12);  color: #06B6D4; }
-    .feat-icon.pink   { background: rgba(244,63,94,.12);  color: #f43f5e; }
-    .feat-icon.purple { background: rgba(139,92,246,.12); color: #8B5CF6; }
-
-    .feat-title {
-      font-family: var(--font-d);
-      font-size: 16px; font-weight: 700;
-      color: var(--text);
-      margin-bottom: 8px;
-    }
-    .feat-desc { font-size: 14px; color: var(--text-2); line-height: 1.65; margin: 0; }
-
-    /* ══════════════════════════════════════════
-       HOW IT WORKS
-    ══════════════════════════════════════════ */
-    .step-card {
-      text-align: center;
-      padding: 32px 24px;
-      border-radius: var(--r);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      height: 100%;
-      transition: all var(--ease);
-      position: relative;
-    }
-    .step-card:hover { border-color: var(--border-2); transform: translateY(-2px); }
-
-    .step-num {
-      width: 52px; height: 52px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-family: var(--font-d);
-      font-size: 20px; font-weight: 800;
-      margin: 0 auto 16px;
-    }
-    .step-num.s1 { background: rgba(37,99,235,.12);  color: #6ea8fe; border: 1px solid rgba(37,99,235,.25); }
-    .step-num.s2 { background: rgba(34,197,94,.12);  color: #22C55E; border: 1px solid rgba(34,197,94,.25); }
-    .step-num.s3 { background: rgba(234,179,8,.12);  color: #EAB308; border: 1px solid rgba(234,179,8,.25); }
-    .step-num.s4 { background: rgba(6,182,212,.12);  color: #06B6D4; border: 1px solid rgba(6,182,212,.25); }
-
-    .step-title { font-family: var(--font-d); font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .step-desc  { font-size: 14px; color: var(--text-2); line-height: 1.6; margin: 0; }
-
-    /* ══════════════════════════════════════════
-       STATS BAND
-    ══════════════════════════════════════════ */
-    .stats-band {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 40px 28px;
-    }
-    .stat-big-val {
-      font-family: var(--font-d);
-      font-size: 2.4rem; font-weight: 800;
-      background: var(--brand-grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 6px;
-    }
-    .stat-big-label { font-size: 14px; color: var(--text-2); font-weight: 500; }
-
-    /* ══════════════════════════════════════════
-       PRICING
-    ══════════════════════════════════════════ */
-    .price-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r);
-      padding: 40px 36px;
-      position: relative;
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
-    }
-    .price-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 3px;
-      background: var(--brand-grad);
-      border-radius: var(--r) var(--r) 0 0;
-    }
-
-    .price-amount {
-      font-family: var(--font-d);
-      font-size: 4rem; font-weight: 800;
-      color: var(--text);
-      line-height: 1;
-      margin: 20px 0 6px;
-    }
-
-    .price-list { list-style: none; padding: 0; margin: 20px 0 0; }
-    .price-list li {
-      display: flex; align-items: center; gap: 10px;
-      padding: 10px 0;
-      border-bottom: 1px solid var(--border);
-      font-size: 14px; color: var(--text-2);
-    }
-    .price-list li:last-child { border-bottom: none; }
-    .price-list li i { color: var(--brand-2); flex-shrink: 0; }
-
-    /* ══════════════════════════════════════════
-       FAQ
-    ══════════════════════════════════════════ */
-    .faq-item {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--r-sm);
-      margin-bottom: 10px;
-      overflow: hidden;
-      transition: border-color var(--ease);
-    }
-    .faq-item:hover { border-color: var(--border-2); }
-
-    .faq-btn {
-      width: 100%;
-      padding: 20px 24px;
-      background: transparent;
-      border: none;
-      display: flex; align-items: center; justify-content: space-between; gap: 16px;
-      font-family: var(--font-b);
-      font-size: 15px; font-weight: 600;
-      color: var(--text);
-      cursor: pointer;
-      text-align: left;
-      transition: color var(--ease);
-    }
-    .faq-btn .faq-chevron {
-      font-size: 13px; color: var(--text-3);
-      transition: transform .3s ease, color var(--ease);
-      flex-shrink: 0;
-    }
-    .faq-btn[aria-expanded="true"] .faq-chevron { transform: rotate(180deg); color: var(--brand); }
-    .faq-btn[aria-expanded="true"] { color: var(--brand); }
-
-    .faq-body {
-      padding: 0 24px 18px;
-      font-size: 14px; color: var(--text-2);
-      line-height: 1.7;
-    }
-
-    /* Override Bootstrap accordion for our theme */
-    .accordion-button { display: none; }
-    .accordion-item { display: none; }
-
-    /* ══════════════════════════════════════════
-       CTA SECTION
-    ══════════════════════════════════════════ */
-    .cta-card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 28px;
-      padding: clamp(40px, 6vw, 72px);
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-      box-shadow: var(--shadow-sm);
-    }
-    .cta-card::before {
-      content: '';
-      position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse 60% 80% at 50% -20%, rgba(37,99,235,.08), transparent 60%);
-      pointer-events: none;
-    }
-
-    .cta-badge {
-      display: inline-flex; align-items: center; gap: 7px;
-      background: rgba(37,99,235,.1);
-      border: 1px solid rgba(37,99,235,.2);
-      color: #6ea8fe;
-      padding: 7px 16px;
-      border-radius: 30px;
-      font-size: 13px; font-weight: 600;
-      margin-bottom: 20px;
-    }
-    [data-theme="light"] .cta-badge { color: var(--brand); }
-
-    .cta-title {
-      font-family: var(--font-d);
-      font-size: clamp(2rem, 4vw, 3rem);
-      font-weight: 800;
-      letter-spacing: -.03em;
-      color: var(--text);
-      margin-bottom: 16px;
-      line-height: 1.1;
-    }
-
-    .cta-sub {
-      color: var(--text-2);
-      font-size: 1.05rem;
-      max-width: 620px;
-      margin: 0 auto 32px;
-      line-height: 1.7;
-    }
-
-    .cta-props { margin-top: 40px; }
-    .cta-prop-icon { font-size: 20px; margin-bottom: 8px; }
-    .cta-prop-title { font-family: var(--font-d); font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-    .cta-prop-desc  { font-size: 13px; color: var(--text-2); }
-
-    /* ══════════════════════════════════════════
-       FOOTER
-    ══════════════════════════════════════════ */
-    .site-footer {
-      border-top: 1px solid var(--border);
-      padding: 56px 0 36px;
-      margin-top: 80px;
-    }
-
-    .footer-logo {
-      font-family: var(--font-d);
-      font-size: 1.5rem; font-weight: 800;
-      background: var(--brand-grad);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      text-decoration: none;
-      display: inline-block;
-      margin-bottom: 14px;
-    }
-
-    .footer-desc { font-size: 14px; color: var(--text-2); line-height: 1.7; }
-
-    .footer-heading { font-family: var(--font-d); font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 16px; }
-
-    .footer-links { list-style: none; padding: 0; margin: 0; }
-    .footer-links li { margin-bottom: 10px; }
-    .footer-links a {
-      font-size: 14px; color: var(--text-2);
-      text-decoration: none;
-      transition: color var(--ease);
-    }
-    .footer-links a:hover { color: var(--text); }
-
-    .footer-social {
-      display: flex; gap: 10px; margin-top: 20px;
-    }
-    .social-btn {
-      width: 38px; height: 38px;
-      border-radius: var(--r-sm);
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text-2);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 16px;
-      text-decoration: none;
-      transition: all var(--ease);
-    }
-    .social-btn:hover { background: var(--surface-2); color: var(--text); border-color: var(--border-2); }
-
-    .footer-bottom {
-      border-top: 1px solid var(--border);
-      padding-top: 24px;
-      margin-top: 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .footer-bottom span, .footer-bottom a {
-      font-size: 13px; color: var(--text-3);
-    }
-    .footer-bottom a { text-decoration: none; transition: color var(--ease); }
-    .footer-bottom a:hover { color: var(--text-2); }
-
-    /* ══════════════════════════════════════════
-       UTILITIES
-    ══════════════════════════════════════════ */
-    .divider { border-top: 1px solid var(--border); }
-
-    @media (max-width: 991px) {
-      .hero { text-align: center; padding: 60px 0 70px; }
-      .hero-cta { justify-content: center; }
-      .hero-checks { align-items: center; }
-      .dash-card { margin-top: 48px; }
-    }
-
-    @media (max-width: 576px) {
-      .site-nav { border-radius: var(--r-sm); }
-      .price-card { padding: 32px 24px; }
-      .cta-card { padding: 40px 24px; }
-    }
-
-    /* Additional mobile tweaks for improved responsiveness */
-    @media (max-width: 767px) {
-      .container { padding-left: 16px; padding-right: 16px; }
-      .site-nav { padding: 10px; }
-      .nav-logo { font-size: 1.25rem; }
-      .nav-right { margin-left: auto; gap: 8px; flex-wrap: wrap; }
-      .nav-right a, .nav-right .theme-btn { flex-shrink: 0; }
-      .btn-nav-outline, .btn-nav-primary { padding: 8px 12px; font-size: 14px; }
-      .hero { padding: 40px 0 50px; }
-      .hero-desc { font-size: 1rem; margin: 18px 0 26px; }
-      .hero-cta { justify-content: center; }
-      .btn-primary-lg, .btn-ghost-lg { padding: 10px 16px; font-size: 14px; }
-      .dash-card { margin-top: 24px; padding: 18px; }
-      .dash-bar-row { height: 48px; }
-      .section-desc { padding: 0 12px; max-width: 100%; }
-      .feature-card { padding: 20px; }
-      .cta-card { padding: 28px 18px; }
-    }
-  </style>
-</head>
-
-<body>
-<div class="container">
-
-  <!-- ══════════════════════════════════════════
-       NAVBAR
-  ══════════════════════════════════════════ -->
-  <div class="site-nav-wrap">
-    <nav class="site-nav">
-      <a class="nav-logo" href="{% url 'landing' %}">CreditBook</a>
-
-      <div class="nav-right">
-        <button class="theme-btn" id="themeToggle" title="Toggle theme">
-          <i class="bi bi-moon-fill" id="themeIcon"></i>
-        </button>
-        <a href="{% url 'login' %}" class="btn-nav-outline">
-          Sign In
-        </a>
-      </div>
-    </nav>
-  </div>
-
-  <!-- ══════════════════════════════════════════
-       HERO
-  ══════════════════════════════════════════ -->
-  <section class="hero">
-    <div class="row align-items-center">
-
-      <div class="col-lg-6">
-        <div class="hero-badge">
-          <i class="bi bi-stars"></i>
-          14-Day Free Trial &nbsp;·&nbsp; No Credit Card Required
-        </div>
-
-        <h1>
-          Never Lose Track of <span class="hero-gradient-text">Customer Debts</span> Again.
-        </h1>
-
-        <p class="hero-desc">
-          CreditBook helps business owners record sales, track expenses, manage customer debts,
-          monitor repayments, and send WhatsApp payment reminders — all from one clean and
-          secure dashboard.
-        </p>
-
-        <div class="hero-cta">
-          <a href="{% url 'register' %}" class="btn-primary-lg">
-            <i class="bi bi-building-add"></i>
-            Create Free Account
-          </a>
-          <a href="{% url 'login' %}" class="btn-ghost-lg">
-            <i class="bi bi-box-arrow-in-right"></i>
-            Sign In
-          </a>
-        </div>
-
-        <div class="hero-checks">
-          <div class="hero-check-item"><i class="bi bi-check-circle-fill"></i>Track Sales & Income</div>
-          <div class="hero-check-item"><i class="bi bi-check-circle-fill"></i>Manage Customer Debts</div>
-          <div class="hero-check-item"><i class="bi bi-check-circle-fill"></i>Record Expenses</div>
-          <div class="hero-check-item"><i class="bi bi-check-circle-fill"></i>WhatsApp Payment Reminders</div>
-        </div>
-      </div>
-
-      <div class="col-lg-6">
-        <div class="dash-card">
-          <div class="dash-title">
-            <div class="dot"></div>
-            Business Overview
-          </div>
-
-          <div class="row g-3 mb-2">
-            <div class="col-6">
-              <div class="stat-mini">
-                <div class="stat-mini-label">Today's Sales</div>
-                <div class="stat-mini-val" style="color:#22C55E;">₦78,000</div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="stat-mini">
-                <div class="stat-mini-label">Expenses</div>
-                <div class="stat-mini-val" style="color:#EAB308;">₦18,500</div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="stat-mini">
-                <div class="stat-mini-label">Outstanding Debts</div>
-                <div class="stat-mini-val" style="color:#f43f5e;">₦240,000</div>
-              </div>
-            </div>
-            <div class="col-6">
-              <div class="stat-mini">
-                <div class="stat-mini-label">Income</div>
-                <div class="stat-mini-val" style="color:#22C55E;">₦78,000</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Mini bar chart -->
-          <div style="font-size:11px;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-top:16px;margin-bottom:8px;">Weekly Sales</div>
-          <div class="dash-bar-row">
-            <div class="dash-bar" style="height:40%;"></div>
-            <div class="dash-bar" style="height:65%;"></div>
-            <div class="dash-bar hi" style="height:85%;"></div>
-            <div class="dash-bar" style="height:55%;"></div>
-            <div class="dash-bar hi" style="height:100%;"></div>
-            <div class="dash-bar" style="height:70%;"></div>
-            <div class="dash-bar" style="height:50%;"></div>
-          </div>
-          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-3);">
-            <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
-          </div>
-
-          <div class="whatsapp-pill">
-            <i class="bi bi-whatsapp"></i>
-            Payment reminder sent successfully to <strong>your customer/client.</strong>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════
-       FEATURES
-  ══════════════════════════════════════════ -->
-  <section class="py-5">
-    <div class="text-center mb-5">
-      <div class="section-label">Everything You Need</div>
-      <h2 class="section-title">Powerful tools for modern<br>business owners</h2>
-      <p class="section-desc">
-        Everything works together so you always know who owes you, what you've earned, and where your money goes.
-      </p>
-    </div>
-
-    <div class="row g-4">
-      <div class="col-lg-4 col-md-6">
-        <div class="feature-card c-green">
-          <div class="feat-icon green"><i class="bi bi-cash-stack"></i></div>
-          <div class="feat-title">Record Sales</div>
-          <p class="feat-desc">Keep accurate records of every sale and payment made by your customers.</p>
-        </div>
-      </div>
-      <div class="col-lg-4 col-md-6">
-        <div class="feature-card c-blue">
-          <div class="feat-icon blue"><i class="bi bi-wallet2"></i></div>
-          <div class="feat-title">Track Expenses</div>
-          <p class="feat-desc">Record business expenses and always know where your money is going.</p>
-        </div>
-      </div>
-      <div class="col-lg-4 col-md-6">
-        <div class="feature-card c-yellow">
-          <div class="feat-icon yellow"><i class="bi bi-people"></i></div>
-          <div class="feat-title">Customer Management</div>
-          <p class="feat-desc">Create customer profiles with complete debt history and payment records.</p>
-        </div>
-      </div>
-      <div class="col-lg-4 col-md-6">
-        <div class="feature-card c-cyan">
-          <div class="feat-icon cyan"><i class="bi bi-receipt"></i></div>
-          <div class="feat-title">Debt Tracking</div>
-          <p class="feat-desc">Instantly know every outstanding balance and every payment received.</p>
-        </div>
-      </div>
-      <div class="col-lg-4 col-md-6">
-        <div class="feature-card c-green">
-          <div class="feat-icon green"><i class="bi bi-whatsapp"></i></div>
-          <div class="feat-title">WhatsApp Reminders</div>
-          <p class="feat-desc">Send professional payment reminders directly to customers on WhatsApp.</p>
-        </div>
-      </div>
-      <div class="col-lg-4 col-md-6">
-        <div class="feature-card c-pink">
-          <div class="feat-icon pink"><i class="bi bi-bar-chart"></i></div>
-          <div class="feat-title">Business Reports</div>
-          <p class="feat-desc">View sales, income, expenses and debt summaries whenever you need them.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════
-       HOW IT WORKS
-  ══════════════════════════════════════════ -->
-  <section class="py-5">
-    <div class="text-center mb-5">
-      <div class="section-label">Simple Process</div>
-      <h2 class="section-title">How CreditBook Works</h2>
-      <p class="section-desc">Get started in just a few minutes.</p>
-    </div>
-
-    <div class="row g-4">
-      <div class="col-md-3 col-sm-6">
-        <div class="step-card">
-          <div class="step-num s1">1</div>
-          <div class="step-title">Create Account</div>
-          <p class="step-desc">Sign up and create your business workspace.</p>
-        </div>
-      </div>
-      <div class="col-md-3 col-sm-6">
-        <div class="step-card">
-          <div class="step-num s2">2</div>
-          <div class="step-title">Add Customers</div>
-          <p class="step-desc">Save customer information and begin recording transactions.</p>
-        </div>
-      </div>
-      <div class="col-md-3 col-sm-6">
-        <div class="step-card">
-          <div class="step-num s3">3</div>
-          <div class="step-title">Record Debts</div>
-          <p class="step-desc">Track purchases, repayments and outstanding balances.</p>
-        </div>
-      </div>
-      <div class="col-md-3 col-sm-6">
-        <div class="step-card">
-          <div class="step-num s4">4</div>
-          <div class="step-title">Send Reminders</div>
-          <p class="step-desc">Notify customers instantly through WhatsApp.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════
-       STATS
-  ══════════════════════════════════════════ -->
-  <section class="py-5">
-    <div class="stats-band">
-      <div class="row g-4 text-center">
-        <div class="col-6 col-md-3">
-          <div class="stat-big-val">24/7</div>
-          <div class="stat-big-label">Access Anywhere</div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-big-val">100%</div>
-          <div class="stat-big-label">Secure Cloud Storage</div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-big-val">14</div>
-          <div class="stat-big-label">Days Free Trial</div>
-        </div>
-        <div class="col-6 col-md-3">
-          <div class="stat-big-val">∞</div>
-          <div class="stat-big-label">Business Records</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════
-       PRICING
-  ══════════════════════════════════════════ -->
-  <section class="py-5">
-    <div class="text-center mb-5">
-      <div class="section-label">Pricing</div>
-      <h2 class="section-title">Simple Pricing</h2>
-      <p class="section-desc">One complete experience. No hidden features. No complicated plans.</p>
-    </div>
-
-    <div class="row justify-content-center">
-      <div class="col-lg-4 col-md-6">
-        <div class="price-card">
-          <div style="font-family:var(--font-d);font-size:13px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--brand);margin-bottom:12px;">
-            14-Day Free Trial
-          </div>
-          <h3 style="font-family:var(--font-d);font-size:18px;font-weight:700;color:var(--text);margin-bottom:0;">
-            Full Access. Zero Cost.
-          </h3>
-          <div class="price-amount">Free</div>
-          <p style="font-size:14px;color:var(--text-2);margin-bottom:0;">
-            Enjoy full access to every feature for 14 days.
-          </p>
-
-          <ul class="price-list">
-            <li><i class="bi bi-check-circle-fill"></i> Unlimited Features</li>
-            <li><i class="bi bi-check-circle-fill"></i> Customer Management</li>
-            <li><i class="bi bi-check-circle-fill"></i> Sales & Expenses</li>
-            <li><i class="bi bi-check-circle-fill"></i> Debt Tracking</li>
-            <li><i class="bi bi-check-circle-fill"></i> WhatsApp Reminders</li>
-            <li><i class="bi bi-check-circle-fill"></i> Business Reports</li>
-          </ul>
-
-          <a href="{% url 'register' %}" class="btn-primary-lg w-100 mt-4 justify-content-center">
-            <i class="bi bi-building-add"></i>
-            Start Free Trial
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════
-       FAQ
-  ══════════════════════════════════════════ -->
-  <section class="py-5">
-    <div class="text-center mb-5">
-      <div class="section-label">Got Questions?</div>
-      <h2 class="section-title">Frequently Asked Questions</h2>
-    </div>
-
-    <div style="max-width:680px;margin:0 auto;">
-
-      <div class="faq-item">
-        <button class="faq-btn" type="button" data-faq="faq1" aria-expanded="false">
-          Is there a free trial?
-          <i class="bi bi-chevron-down faq-chevron"></i>
-        </button>
-        <div id="faq1" class="faq-body" hidden>
-          Yes. Every new business gets a full 14-day free trial with access to every feature.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-btn" type="button" data-faq="faq2" aria-expanded="false">
-          Can I send WhatsApp reminders?
-          <i class="bi bi-chevron-down faq-chevron"></i>
-        </button>
-        <div id="faq2" class="faq-body" hidden>
-          Yes. You can send payment reminders directly to customers through WhatsApp with one click.
-        </div>
-      </div>
-
-      <div class="faq-item">
-        <button class="faq-btn" type="button" data-faq="faq3" aria-expanded="false">
-          Will my records be safe?
-          <i class="bi bi-chevron-down faq-chevron"></i>
-        </button>
-        <div id="faq3" class="faq-body" hidden>
-          Absolutely. Your business data is securely stored in the cloud and only accessible to authorized users.
-        </div>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════
-       CTA
-  ══════════════════════════════════════════ -->
-  <section class="py-5 mb-4">
-    <div class="cta-card">
-      <div class="cta-badge">
-        <i class="bi bi-rocket-takeoff-fill"></i>
-        Ready to Get Started?
-      </div>
-      <h2 class="cta-title">Stop Guessing.<br>Start Tracking.</h2>
-      <p class="cta-sub">
-        CreditBook helps you keep accurate customer records, monitor debts, record sales and expenses,
-        and send WhatsApp reminders so you never lose track of money owed to your business.
-      </p>
-
-      <div class="d-flex justify-content-center flex-wrap gap-3">
-        <a href="{% url 'register' %}" class="btn-primary-lg">
-          <i class="bi bi-building-add"></i>
-          Start Your Free Trial
-        </a>
-        <a href="{% url 'login' %}" class="btn-ghost-lg">
-          <i class="bi bi-box-arrow-in-right"></i>
-          Sign In
-        </a>
-      </div>
-
-      <div class="row cta-props mt-2">
-        <div class="col-md-4 mt-4">
-          <div class="cta-prop-icon">✓</div>
-          <div class="cta-prop-title" style="color:var(--brand-2);">14-Day Trial</div>
-          <div class="cta-prop-desc">Experience every feature before subscribing.</div>
-        </div>
-        <div class="col-md-4 mt-4">
-          <div class="cta-prop-icon">✓</div>
-          <div class="cta-prop-title" style="color:var(--brand);">Secure</div>
-          <div class="cta-prop-desc">Your business records are encrypted and protected.</div>
-        </div>
-        <div class="col-md-4 mt-4">
-          <div class="cta-prop-icon">✓</div>
-          <div class="cta-prop-title" style="color:#EAB308;">Cloud Based</div>
-          <div class="cta-prop-desc">Access your business from anywhere, anytime.</div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ══════════════════════════════════════════
-       FOOTER
-  ══════════════════════════════════════════ -->
-  <footer class="site-footer">
-    <div class="row gy-5">
-
-      <div class="col-lg-4">
-        <a href="#" class="footer-logo">CreditBook</a>
-        <p class="footer-desc">
-          A simple and powerful business record and debt management platform designed to help
-          business owners stay organized, recover payments faster, and make smarter decisions.
-        </p>
-        <div class="footer-social">
-          <a href="#" class="social-btn"><i class="bi bi-facebook"></i></a>
-          <a href="#" class="social-btn"><i class="bi bi-instagram"></i></a>
-          <a href="#" class="social-btn"><i class="bi bi-twitter-x"></i></a>
-          <a href="#" class="social-btn"><i class="bi bi-linkedin"></i></a>
-        </div>
-      </div>
-
-      <div class="col-lg-2 col-6">
-        <div class="footer-heading">Product</div>
-        <ul class="footer-links">
-          <li><a href="#">Sales Tracking</a></li>
-          <li><a href="#">Debt Management</a></li>
-          <li><a href="#">Customer Records</a></li>
-          <li><a href="#">Expenses</a></li>
-          <li><a href="#">Reports</a></li>
-        </ul>
-      </div>
-
-      <div class="col-lg-2 col-6">
-        <div class="footer-heading">Company</div>
-        <ul class="footer-links">
-          <li><a href="{% url 'about' %}">About</a></li>
-          <li><a href="{% url 'contact' %}">Contact</a></li>
-          <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
-          <li><a href="{% url 'terms_of_service' %}">Terms of Service</a></li>
-        </ul>
-      </div>
-
-      <div class="col-lg-4">
-        <div class="footer-heading">Stay Connected</div>
-        <p class="footer-desc">
-          Join thousands of business owners who use CreditBook to manage customer debts and
-          business records with confidence.
-        </p>
-      </div>
-
-    </div>
-
-    <div class="footer-bottom">
-      <span>© 2026 CreditBook. All rights reserved.</span>
-      <div class="d-flex gap-4">
-        <a href="{% url 'privacy_policy' %}">Privacy</a>
-        <a href="{% url 'terms_of_service' %}">Terms</a>
-        <a href="{% url 'contact' %}">Help Center</a>
-      </div>
-    </div>
-  </footer>
-
-</div><!-- /container -->
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-  /* ── Theme ───────────────────────────────── */
-  const html  = document.documentElement;
-  const btn   = document.getElementById('themeToggle');
-  const icon  = document.getElementById('themeIcon');
-
-  function applyTheme(t) {
-    html.setAttribute('data-theme', t);
-    localStorage.setItem('bm-theme', t);
-    icon.className = t === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
+{% extends 'core/public_base.html' %}
+{% load humanize %}
+
+{% block title %}CreditBook: Track sales, expenses and customer debts{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* ═══════════════════════════════════════════════
+     HERO
+  ═══════════════════════════════════════════════ */
+  .hero { position: relative; padding: 72px 0 96px; overflow: hidden; }
+  .hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 30%, transparent 75%);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .hero .container { position: relative; }
+  .hero-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: 64px; align-items: center; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 5px 12px 5px 6px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: 13px; font-weight: 500; color: var(--text-2);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+  }
+  .pill-tag { background: var(--brand-soft); color: var(--brand-ink); font-weight: 600; padding: 2px 8px; border-radius: 999px; font-size: 12px; }
+
+  .hero h1 { font-size: clamp(2.375rem, 5vw, 3.5rem); font-weight: 800; letter-spacing: -0.035em; line-height: 1.08; }
+  .hero h1 .accent { color: var(--brand); }
+  .hero-lead { margin-top: 20px; font-size: 18px; color: var(--text-2); max-width: 520px; }
+  .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 32px; }
+  .hero-note { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 20px; font-size: 14px; color: var(--text-3); }
+  .hero-note span { display: inline-flex; align-items: center; gap: 6px; }
+  .hero-note i { color: var(--green); }
+
+  /* ═══════════════════════════════════════════════
+     PRODUCT MOCK (decorative, mirrors the real dashboard)
+  ═══════════════════════════════════════════════ */
+  .mock {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    font-size: 13px;
+  }
+  .mock-bar { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--bg-subtle); }
+  .mock-dots { display: flex; gap: 6px; }
+  .mock-dots span { width: 10px; height: 10px; border-radius: 50%; background: var(--border-2); }
+  .mock-title { font-weight: 600; color: var(--text); }
+  .mock-period { margin-left: auto; font-size: 12px; color: var(--text-3); border: 1px solid var(--border); border-radius: 6px; padding: 2px 8px; background: var(--surface); }
+  .mock-body { padding: 18px; display: grid; gap: 14px; }
+
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .kpi { border: 1px solid var(--border); border-radius: 10px; padding: 12px; }
+  .kpi-label { font-size: 11px; color: var(--text-3); font-weight: 500; }
+  .kpi-value { margin-top: 4px; font-size: 18px; font-weight: 700; color: var(--text); letter-spacing: -0.02em; }
+  .kpi-delta { margin-top: 2px; font-size: 11px; font-weight: 600; }
+  .up { color: var(--green); }
+  .down { color: var(--red); }
+
+  .chart { border: 1px solid var(--border); border-radius: 10px; padding: 12px 12px 8px; }
+  .chart-head { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-3); margin-bottom: 10px; }
+  .chart-head strong { color: var(--text); font-weight: 600; }
+  .bars { display: flex; align-items: flex-end; gap: 8px; height: 84px; }
+  .bars span { flex: 1; border-radius: 4px 4px 0 0; background: var(--brand-soft); }
+  .bars span.hi { background: var(--brand); }
+  .bar-days { display: flex; gap: 8px; margin-top: 6px; }
+  .bar-days span { flex: 1; text-align: center; font-size: 10px; color: var(--text-3); }
+
+  .debt-list { border: 1px solid var(--border); border-radius: 10px; }
+  .debt-list-head { padding: 10px 12px; font-size: 12px; font-weight: 600; color: var(--text); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; }
+  .debt-list-head span { color: var(--text-3); font-weight: 500; }
+  .debt-row { display: grid; grid-template-columns: 28px 1fr auto auto; align-items: center; gap: 10px; padding: 9px 12px; border-bottom: 1px solid var(--border); }
+  .debt-row:last-child { border-bottom: none; }
+  .avatar { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; font-size: 11px; font-weight: 700; background: var(--surface-2); color: var(--text-2); }
+  .debt-name { font-weight: 600; color: var(--text); line-height: 1.2; }
+  .debt-meta { font-size: 11px; color: var(--text-3); }
+  .debt-amt { font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+  .tag { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+  .tag-red { background: var(--red-soft); color: var(--red); }
+  .tag-amber { background: var(--amber-soft); color: var(--amber); }
+  .tag-green { background: var(--green-soft); color: var(--green); }
+  .wa-btn { width: 26px; height: 26px; border-radius: 6px; display: grid; place-items: center; background: rgba(37,211,102,0.12); color: var(--whatsapp); font-size: 13px; }
+
+  @media (max-width: 991px) {
+    .hero { padding: 48px 0 72px; }
+    .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+    .hero-copy { text-align: center; }
+    .hero-lead { margin-left: auto; margin-right: auto; }
+    .hero-ctas, .hero-note { justify-content: center; }
+  }
+  @media (max-width: 479px) {
+    .kpis { grid-template-columns: 1fr 1fr; }
+    .kpis .kpi:last-child { grid-column: 1 / -1; }
+    .hero-ctas .btn { flex: 1 1 100%; }
+    .debt-row { grid-template-columns: 28px 1fr auto; }
+    .debt-row .tag { display: none; }
   }
 
-  applyTheme(localStorage.getItem('bm-theme') || 'dark');
+  /* ═══════════════════════════════════════════════
+     AUDIENCE STRIP
+  ═══════════════════════════════════════════════ */
+  .audience { border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); background: var(--bg-subtle); padding: 22px 0; }
+  .audience-inner { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 10px 28px; font-size: 14px; color: var(--text-3); }
+  .audience-inner strong { color: var(--text-2); font-weight: 600; }
+  .audience-inner span { display: inline-flex; align-items: center; gap: 8px; }
 
-  btn.addEventListener('click', () => {
-    applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-  });
+  /* ═══════════════════════════════════════════════
+     FEATURES
+  ═══════════════════════════════════════════════ */
+  .features { display: grid; grid-template-columns: repeat(3, 1fr); border: 1px solid var(--border); border-radius: var(--r-lg); overflow: hidden; background: var(--surface); }
+  .feature { padding: 32px 28px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .feature:nth-child(3n) { border-right: none; }
+  .feature:nth-last-child(-n+3) { border-bottom: none; }
+  .feature-icon { width: 40px; height: 40px; border-radius: 10px; display: grid; place-items: center; background: var(--brand-soft); color: var(--brand-ink); font-size: 18px; margin-bottom: 20px; }
+  .feature h3 { font-size: 17px; font-weight: 600; margin-bottom: 8px; }
+  .feature p { font-size: 15px; color: var(--text-2); }
 
-  /* ── FAQ accordion ───────────────────────── */
-  document.querySelectorAll('.faq-btn').forEach(button => {
-    button.addEventListener('click', () => {
-      const targetId = button.getAttribute('data-faq');
-      const body     = document.getElementById(targetId);
-      const isOpen   = button.getAttribute('aria-expanded') === 'true';
+  @media (max-width: 899px) {
+    .features { grid-template-columns: 1fr 1fr; }
+    .feature:nth-child(3n) { border-right: 1px solid var(--border); }
+    .feature:nth-child(2n) { border-right: none; }
+    .feature:nth-last-child(-n+3) { border-bottom: 1px solid var(--border); }
+    .feature:nth-last-child(-n+2) { border-bottom: none; }
+  }
+  @media (max-width: 575px) {
+    .features { grid-template-columns: 1fr; }
+    .feature, .feature:nth-child(3n), .feature:nth-child(2n) { border-right: none; border-bottom: 1px solid var(--border); padding: 24px 20px; }
+    .feature:last-child { border-bottom: none; }
+  }
 
-      // Close all
-      document.querySelectorAll('.faq-btn').forEach(b => {
-        b.setAttribute('aria-expanded', 'false');
-        document.getElementById(b.getAttribute('data-faq')).hidden = true;
-      });
+  /* ═══════════════════════════════════════════════
+     SPOTLIGHT
+  ═══════════════════════════════════════════════ */
+  .spotlight { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: center; }
+  .checklist { list-style: none; padding: 0; margin: 28px 0 0; display: grid; gap: 16px; }
+  .checklist li { display: grid; grid-template-columns: 24px 1fr; gap: 12px; }
+  .checklist i { color: var(--brand); font-size: 18px; line-height: 1.4; }
+  .checklist strong { display: block; color: var(--text); font-weight: 600; }
+  .checklist span { color: var(--text-2); font-size: 15px; }
 
-      // Open clicked (unless it was already open)
-      if (!isOpen) {
-        button.setAttribute('aria-expanded', 'true');
-        body.hidden = false;
-      }
-    });
-  });
+  .ledger { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); box-shadow: var(--shadow); overflow: hidden; font-size: 14px; }
+  .ledger-head { display: flex; align-items: center; gap: 14px; padding: 20px; border-bottom: 1px solid var(--border); }
+  .ledger-head .avatar { width: 44px; height: 44px; font-size: 15px; background: var(--brand-soft); color: var(--brand-ink); }
+  .ledger-name { font-weight: 600; color: var(--text); }
+  .ledger-phone { font-size: 13px; color: var(--text-3); }
+  .ledger-balance { margin-left: auto; text-align: right; }
+  .ledger-balance small { display: block; font-size: 12px; color: var(--text-3); }
+  .ledger-balance strong { font-size: 20px; color: var(--text); letter-spacing: -0.02em; }
+  .ledger-row { display: flex; justify-content: space-between; gap: 12px; padding: 13px 20px; border-bottom: 1px solid var(--border); }
+  .ledger-row:last-of-type { border-bottom: none; }
+  .ledger-row .what { color: var(--text); font-weight: 500; }
+  .ledger-row .when { font-size: 12px; color: var(--text-3); }
+  .ledger-row .amt { font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
+  .ledger-foot { padding: 16px 20px; background: var(--bg-subtle); border-top: 1px solid var(--border); }
+  .ledger-foot .btn { width: 100%; background: var(--whatsapp); color: #06301a; }
+  .ledger-foot .btn:hover { filter: brightness(0.95); color: #06301a; }
 
-  /* ── Sticky nav shadow ───────────────────── */
-  const navWrap = document.querySelector('.site-nav-wrap');
-  window.addEventListener('scroll', () => {
-    navWrap.style.paddingTop = window.scrollY > 10 ? '10px' : '20px';
-  });
-</script>
+  @media (max-width: 991px) {
+    .spotlight { grid-template-columns: 1fr; gap: 48px; }
+  }
 
-</body>
-</html>
+  /* ═══════════════════════════════════════════════
+     STEPS
+  ═══════════════════════════════════════════════ */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; counter-reset: step; }
+  .step { position: relative; padding-top: 24px; border-top: 2px solid var(--border); }
+  .step::before {
+    counter-increment: step;
+    content: counter(step, decimal-leading-zero);
+    display: block;
+    font-size: 13px; font-weight: 700; color: var(--brand-ink);
+    margin-bottom: 12px;
+    font-variant-numeric: tabular-nums;
+  }
+  .step:first-child { border-top-color: var(--brand); }
+  .step h3 { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+  .step p { color: var(--text-2); font-size: 15px; }
+  @media (max-width: 767px) { .steps { grid-template-columns: 1fr; gap: 32px; } }
+
+  /* ═══════════════════════════════════════════════
+     PRICING
+  ═══════════════════════════════════════════════ */
+  .pricing {
+    display: grid; grid-template-columns: 1.1fr 1fr;
+    max-width: 920px; margin: 0 auto;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg);
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  .pricing-main { padding: 40px; }
+  .pricing-name { font-size: 15px; font-weight: 600; color: var(--brand-ink); }
+  .pricing-price { display: flex; align-items: baseline; gap: 6px; margin-top: 16px; }
+  .pricing-price strong { font-size: 48px; font-weight: 800; letter-spacing: -0.04em; color: var(--text); line-height: 1; }
+  .pricing-price span { color: var(--text-3); font-size: 16px; }
+  .pricing-sub { margin-top: 12px; color: var(--text-2); }
+  .pricing-main .btn { margin-top: 28px; width: 100%; }
+  .pricing-fine { margin-top: 12px; text-align: center; font-size: 13px; color: var(--text-3); }
+  .pricing-incl { padding: 40px; background: var(--bg-subtle); border-left: 1px solid var(--border); }
+  .pricing-incl h3 { font-size: 14px; font-weight: 600; margin-bottom: 20px; }
+  .pricing-incl ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+  .pricing-incl li { display: flex; gap: 10px; color: var(--text-2); font-size: 15px; }
+  .pricing-incl li i { color: var(--green); }
+  @media (max-width: 767px) {
+    .pricing { grid-template-columns: 1fr; }
+    .pricing-main, .pricing-incl { padding: 28px 24px; }
+    .pricing-incl { border-left: none; border-top: 1px solid var(--border); }
+  }
+
+  /* ═══════════════════════════════════════════════
+     FAQ
+  ═══════════════════════════════════════════════ */
+  .faq-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 64px; }
+  .faq-side p { margin-top: 16px; color: var(--text-2); }
+  .faq-list { border-top: 1px solid var(--border); }
+  .faq-list details { border-bottom: 1px solid var(--border); }
+  .faq-list summary {
+    list-style: none; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center; gap: 24px;
+    padding: 20px 0;
+    font-weight: 600; color: var(--text);
+  }
+  .faq-list summary::-webkit-details-marker { display: none; }
+  .faq-list summary i { color: var(--text-3); transition: transform var(--ease); flex-shrink: 0; }
+  .faq-list details[open] summary i { transform: rotate(45deg); }
+  .faq-list details p { padding: 0 40px 22px 0; color: var(--text-2); }
+  @media (max-width: 899px) { .faq-grid { grid-template-columns: 1fr; gap: 32px; } }
+
+  /* ═══════════════════════════════════════════════
+     CTA
+  ═══════════════════════════════════════════════ */
+  .cta {
+    position: relative; overflow: hidden;
+    border-radius: 20px;
+    padding: 64px 48px;
+    background: #0f172a;
+    color: #fff;
+    display: flex; align-items: center; justify-content: space-between; gap: 32px; flex-wrap: wrap;
+  }
+  .cta::after {
+    content: ''; position: absolute; right: -120px; top: -160px;
+    width: 480px; height: 480px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(79,140,255,0.35), transparent 65%);
+    pointer-events: none;
+  }
+  [data-theme="dark"] .cta { background: var(--surface-2); border: 1px solid var(--border-2); }
+  .cta h2 { color: #fff; font-size: clamp(1.75rem, 3vw, 2.25rem); max-width: 560px; }
+  .cta p { margin-top: 12px; color: rgba(255,255,255,0.72); font-size: 17px; }
+  .cta-actions { position: relative; z-index: 1; display: flex; gap: 12px; flex-wrap: wrap; }
+  .cta .btn-light { background: #fff; color: #0f172a; }
+  .cta .btn-light:hover { background: #e9edf5; color: #0f172a; }
+  .cta .btn-outline { border-color: rgba(255,255,255,0.28); color: #fff; }
+  .cta .btn-outline:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  @media (max-width: 575px) { .cta { padding: 40px 24px; } .cta-actions .btn { flex: 1 1 100%; } }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ─── Hero ─────────────────────────────────────── -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <div class="pill"><span class="pill-tag">Free trial</span> 14 days, no card required</div>
+        <h1>Know who owes you. <span class="accent">Get paid sooner.</span></h1>
+        <p class="hero-lead">
+          CreditBook keeps your sales, expenses and customer debts in one tidy ledger,
+          and sends payment reminders over WhatsApp in a single tap.
+        </p>
+        <div class="hero-ctas">
+          <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Start your free trial <i class="bi bi-arrow-right"></i></a>
+          <a href="#how-it-works" class="btn btn-secondary btn-lg">See how it works</a>
+        </div>
+        <div class="hero-note">
+          <span><i class="bi bi-check-circle-fill"></i> Every feature included</span>
+          <span><i class="bi bi-check-circle-fill"></i> Works on phone and desktop</span>
+        </div>
+      </div>
+
+      <div class="mock" aria-hidden="true">
+        <div class="mock-bar">
+          <div class="mock-dots"><span></span><span></span><span></span></div>
+          <div class="mock-title">Dashboard</div>
+          <div class="mock-period">This month</div>
+        </div>
+        <div class="mock-body">
+          <div class="kpis">
+            <div class="kpi">
+              <div class="kpi-label">Sales</div>
+              <div class="kpi-value">₦1.24M</div>
+              <div class="kpi-delta up"><i class="bi bi-arrow-up-short"></i>12.4%</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Expenses</div>
+              <div class="kpi-value">₦318K</div>
+              <div class="kpi-delta down"><i class="bi bi-arrow-up-short"></i>3.1%</div>
+            </div>
+            <div class="kpi">
+              <div class="kpi-label">Owed to you</div>
+              <div class="kpi-value">₦240K</div>
+              <div class="kpi-delta" style="color:var(--text-3)">6 customers</div>
+            </div>
+          </div>
+
+          <div class="chart">
+            <div class="chart-head"><strong>Sales, last 7 days</strong><span>₦412,500</span></div>
+            <div class="bars">
+              <span style="height:42%"></span><span style="height:58%"></span><span style="height:50%"></span>
+              <span style="height:74%"></span><span class="hi" style="height:96%"></span><span style="height:66%"></span><span style="height:38%"></span>
+            </div>
+            <div class="bar-days"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+          </div>
+
+          <div class="debt-list">
+            <div class="debt-list-head">Outstanding debts <span>View all</span></div>
+            <div class="debt-row">
+              <div class="avatar">AO</div>
+              <div><div class="debt-name">Adaeze Okafor</div><div class="debt-meta">Due 4 days ago</div></div>
+              <span class="tag tag-red">Overdue</span>
+              <div class="wa-btn"><i class="bi bi-whatsapp"></i></div>
+            </div>
+            <div class="debt-row">
+              <div class="avatar">MB</div>
+              <div><div class="debt-name">Musa Bello</div><div class="debt-meta">₦45,000 · due Friday</div></div>
+              <span class="tag tag-amber">Due soon</span>
+              <div class="wa-btn"><i class="bi bi-whatsapp"></i></div>
+            </div>
+            <div class="debt-row">
+              <div class="avatar">TB</div>
+              <div><div class="debt-name">Tunde Bakare</div><div class="debt-meta">₦18,000 · paid today</div></div>
+              <span class="tag tag-green">Paid</span>
+              <div class="wa-btn" style="visibility:hidden"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Audience ─────────────────────────────────── -->
+<div class="audience">
+  <div class="container">
+    <div class="audience-inner">
+      <strong>Built for small businesses</strong>
+      <span><i class="bi bi-shop"></i> Retail shops</span>
+      <span><i class="bi bi-box-seam"></i> Wholesalers</span>
+      <span><i class="bi bi-capsule"></i> Pharmacies</span>
+      <span><i class="bi bi-scissors"></i> Salons</span>
+      <span><i class="bi bi-tools"></i> Service providers</span>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Features ─────────────────────────────────── -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">Features</span>
+      <h2 class="section-title">Everything your business books need, nothing they don't</h2>
+      <p class="section-lead">Replace the notebook and the spreadsheet with one place to record every sale, expense and credit sale.</p>
+    </div>
+
+    <div class="features">
+      <div class="feature">
+        <div class="feature-icon"><i class="bi bi-bag-check"></i></div>
+        <h3>Sales recording</h3>
+        <p>Log each sale with quantity, price and payment method. Search your history and export it to CSV.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon"><i class="bi bi-person-lines-fill"></i></div>
+        <h3>Customer debts</h3>
+        <p>Record credit sales against each customer with due dates. Overdue balances are flagged automatically.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon"><i class="bi bi-whatsapp"></i></div>
+        <h3>WhatsApp reminders</h3>
+        <p>Open a WhatsApp chat with a ready-written payment reminder, including the exact amount owed.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon"><i class="bi bi-receipt"></i></div>
+        <h3>Expenses and income</h3>
+        <p>Categorise spending and record other income, so your monthly net position is always current.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon"><i class="bi bi-graph-up"></i></div>
+        <h3>Dashboard and reports</h3>
+        <p>See daily and monthly sales trends, expenses and outstanding debts at a glance.</p>
+      </div>
+      <div class="feature">
+        <div class="feature-icon"><i class="bi bi-people"></i></div>
+        <h3>Staff accounts</h3>
+        <p>Give staff their own logins. Owners and managers keep control of billing and team settings.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Spotlight ────────────────────────────────── -->
+<section class="section section-alt">
+  <div class="container">
+    <div class="spotlight">
+      <div>
+        <span class="eyebrow">Debt tracking</span>
+        <h2 class="section-title">Every naira owed, accounted for</h2>
+        <p class="section-lead">Each customer gets a running ledger, so you can see what they bought on credit, what they've paid, and what's still outstanding.</p>
+        <ul class="checklist">
+          <li><i class="bi bi-check2-circle"></i><div><strong>Due dates and overdue alerts</strong><span>Overdue debts are counted in your sidebar so nothing slips.</span></div></li>
+          <li><i class="bi bi-check2-circle"></i><div><strong>One-tap reminders</strong><span>The reminder message is written for you. Review it and press send.</span></div></li>
+          <li><i class="bi bi-check2-circle"></i><div><strong>Mark as paid</strong><span>Close a debt the moment you're paid and your totals update instantly.</span></div></li>
+        </ul>
+      </div>
+
+      <div class="ledger" aria-hidden="true">
+        <div class="ledger-head">
+          <div class="avatar">AO</div>
+          <div>
+            <div class="ledger-name">Adaeze Okafor</div>
+            <div class="ledger-phone">0803 *** 4417</div>
+          </div>
+          <div class="ledger-balance"><small>Balance</small><strong>₦62,000</strong></div>
+        </div>
+        <div class="ledger-row"><div><div class="what">Bags of rice (2)</div><div class="when">12 Oct · due 22 Oct</div></div><div class="amt">₦48,000 <div><span class="tag tag-red">Overdue</span></div></div></div>
+        <div class="ledger-row"><div><div class="what">Groundnut oil, 5L</div><div class="when">19 Oct · due 2 Nov</div></div><div class="amt">₦14,000 <div><span class="tag tag-amber">Open</span></div></div></div>
+        <div class="ledger-row"><div><div class="what">Seasoning carton</div><div class="when">3 Oct</div></div><div class="amt" style="color:var(--text-3)">₦9,500 <div><span class="tag tag-green">Paid</span></div></div></div>
+        <div class="ledger-foot"><span class="btn"><i class="bi bi-whatsapp"></i> Send payment reminder</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── How it works ─────────────────────────────── -->
+<section class="section" id="how-it-works">
+  <div class="container">
+    <div class="section-head">
+      <span class="eyebrow">How it works</span>
+      <h2 class="section-title">Set up in minutes, not days</h2>
+      <p class="section-lead">No installation and no training. If you can use WhatsApp, you can use CreditBook.</p>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <h3>Create your workspace</h3>
+        <p>Sign up with your business name and you're in. Your 14-day trial starts straight away.</p>
+      </div>
+      <div class="step">
+        <h3>Record as you trade</h3>
+        <p>Add customers, then log sales, credit, expenses and income as they happen, from any device.</p>
+      </div>
+      <div class="step">
+        <h3>Follow up and get paid</h3>
+        <p>Watch your dashboard, chase overdue balances on WhatsApp, and mark debts paid as money comes in.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Pricing ──────────────────────────────────── -->
+<section class="section section-alt" id="pricing">
+  <div class="container">
+    <div class="section-head center">
+      <span class="eyebrow">Pricing</span>
+      <h2 class="section-title">One plan. Every feature.</h2>
+      <p class="section-lead">Try everything free for 14 days. No tiers and no add-ons.</p>
+    </div>
+
+    <div class="pricing">
+      <div class="pricing-main">
+        <div class="pricing-name">CreditBook</div>
+        <div class="pricing-price">
+          {% if subscription_price %}
+            <strong>₦{{ subscription_price|floatformat:0|intcomma }}</strong><span>/ month</span>
+          {% else %}
+            <strong>Free</strong><span>for 14 days</span>
+          {% endif %}
+        </div>
+        <p class="pricing-sub">
+          {% if subscription_price %}Billed monthly by card after your 14-day free trial.{% else %}Full access to every feature during your trial, then a simple monthly subscription.{% endif %}
+        </p>
+        <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Start your free trial</a>
+        <p class="pricing-fine">No card required to start.</p>
+      </div>
+      <div class="pricing-incl">
+        <h3>Everything included</h3>
+        <ul>
+          <li><i class="bi bi-check-lg"></i> Unlimited customers and records</li>
+          <li><i class="bi bi-check-lg"></i> Sales, expenses and income tracking</li>
+          <li><i class="bi bi-check-lg"></i> Debt tracking with due dates</li>
+          <li><i class="bi bi-check-lg"></i> WhatsApp payment reminders</li>
+          <li><i class="bi bi-check-lg"></i> Dashboard and CSV export</li>
+          <li><i class="bi bi-check-lg"></i> Staff accounts with roles</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── FAQ ──────────────────────────────────────── -->
+<section class="section" id="faq">
+  <div class="container">
+    <div class="faq-grid">
+      <div class="faq-side">
+        <span class="eyebrow">FAQ</span>
+        <h2 class="section-title">Common questions</h2>
+        <p>Can't find what you're looking for? <a href="{% url 'contact' %}">Get in touch</a> and we'll help.</p>
+      </div>
+      <div class="faq-list">
+        <details>
+          <summary>Do I need a card to start the free trial?<i class="bi bi-plus-lg"></i></summary>
+          <p>No. Create an account and you get 14 days of full access straight away. You only add a card when you decide to subscribe.</p>
+        </details>
+        <details>
+          <summary>What happens when my trial ends?<i class="bi bi-plus-lg"></i></summary>
+          <p>If you haven't subscribed, your workspace becomes read-only: you can still see all your records but can't add new ones. After seven more days the workspace is paused until you subscribe. Your data is kept either way.</p>
+        </details>
+        <details>
+          <summary>How do WhatsApp reminders work?<i class="bi bi-plus-lg"></i></summary>
+          <p>From a debt or customer record, tap the WhatsApp button. CreditBook opens a chat with that customer and a pre-filled message showing what they owe. You review it and send it from your own WhatsApp.</p>
+        </details>
+        <details>
+          <summary>Can my staff use CreditBook?<i class="bi bi-plus-lg"></i></summary>
+          <p>Yes. You can create logins for staff members. Owners and managers can manage staff and billing; other staff can record day-to-day activity.</p>
+        </details>
+        <details>
+          <summary>Who can see my business data?<i class="bi bi-plus-lg"></i></summary>
+          <p>Only you and the people you add to your workspace. Each business's records are kept separate. See our <a href="{% url 'privacy_policy' %}">Privacy Policy</a> for details.</p>
+        </details>
+        <details>
+          <summary>Can I delete my account?<i class="bi bi-plus-lg"></i></summary>
+          <p>Yes. You can permanently delete your account and workspace from your profile page at any time. We confirm the request by email first.</p>
+        </details>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA ──────────────────────────────────────── -->
+<section style="padding: 0 0 96px;">
+  <div class="container">
+    <div class="cta">
+      <div style="position:relative;z-index:1;">
+        <h2>Stop chasing payments from memory.</h2>
+        <p>Start your 14-day free trial today. No card required.</p>
+      </div>
+      <div class="cta-actions">
+        <a href="{% url 'register' %}" class="btn btn-lg btn-light">Start free trial</a>
+        <a href="{% url 'contact' %}" class="btn btn-lg btn-outline">Talk to us</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

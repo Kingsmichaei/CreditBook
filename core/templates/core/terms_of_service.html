@@ -1,40 +1,121 @@
 {% extends 'core/static_page.html' %}
 
 {% block title %}Terms of Service | CreditBook{% endblock %}
+{% block meta_description %}The terms that govern your use of CreditBook.{% endblock %}
+{% block page_eyebrow %}Legal{% endblock %}
 {% block page_heading %}Terms of Service{% endblock %}
-{% block page_subtitle %}The rules and responsibilities for using CreditBook.{% endblock %}
+{% block page_subtitle %}The agreement between you and us when you use CreditBook.{% endblock %}
+{% block page_meta %}
+<div class="doc-meta">
+  <span><i class="bi bi-calendar3"></i> Last updated 26 October 2026</span>
+  <span><i class="bi bi-clock"></i> About 7 minutes to read</span>
+</div>
+{% endblock %}
+{% block layout_class %}has-toc{% endblock %}
 
-{% block content %}
-  <p class="section-text">
-    By using CreditBook, you agree to the terms described on this page.
-    These terms help keep the service reliable and secure for everyone.
-  </p>
+{% block article %}
+<p class="callout">
+  Please read these terms carefully. By creating an account or using CreditBook, you agree to them.
+  If you are using CreditBook for a business, you confirm you have authority to accept these terms on its behalf.
+</p>
 
-  <div class="row g-4">
-    <div class="col-md-6">
-      <div class="page-card">
-        <h2 class="section-heading">Use of the Service</h2>
-        <p class="section-text">
-          CreditBook is provided for business record-keeping and billing management.
-          You agree to use the service lawfully and protect your login credentials.
-        </p>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="page-card">
-        <h2 class="section-heading">Account Responsibilities</h2>
-        <p class="section-text">
-          You are responsible for maintaining the accuracy of your business and customer data.
-          Keep your account secure and notify us immediately if unauthorized access occurs.
-        </p>
-      </div>
-    </div>
-  </div>
+<h2 id="the-service">1. The Service</h2>
+<p>
+  CreditBook ("the Service") is an online tool for recording sales, expenses, income, customer debts and staff,
+  operated by Omkcode ("we", "us", "our"). We may improve, change or remove features over time. If a change materially reduces
+  what you are paying for, we will tell you in advance.
+</p>
 
-  <div class="page-card mt-4">
-    <h2 class="section-heading">Contact</h2>
-    <p class="section-text">
-      Questions about these terms can be sent to <a href="mailto:kingsmichael.x@gmail.com">kingsmichael.x@gmail.com</a>.
-    </p>
-  </div>
+<h2 id="accounts">2. Your account</h2>
+<ul>
+  <li>You must be at least 18 years old and provide accurate registration information.</li>
+  <li>You are responsible for keeping your login details secure and for all activity under your account, including activity by staff you add.</li>
+  <li>Tell us immediately at <a href="mailto:kingsmichael.x@gmail.com">kingsmichael.x@gmail.com</a> if you suspect unauthorised access.</li>
+</ul>
+
+<h2 id="trial-and-billing">3. Free trial, subscription and billing</h2>
+<h3>Free trial</h3>
+<p>New workspaces get a 14-day free trial with full access. No card is required to start the trial.</p>
+<h3>After the trial</h3>
+<p>
+  If you have not subscribed when the trial ends, your workspace becomes read-only: you can view your records but not add or change them.
+  If you still haven't subscribed seven days after the trial ends, the workspace is paused until you do. Your records are not deleted because a trial ends.
+</p>
+<h3>Subscription</h3>
+<ul>
+  <li>The subscription is billed monthly in advance, in Nigerian naira, using the card you provide. Payments are processed by Nomba.</li>
+  <li>Your subscription renews automatically each billing period until it ends under these terms.</li>
+  <li>If a payment fails, we will retry it and notify you by email. Repeated failures may lead to your workspace being made read-only or suspended until payment succeeds.</li>
+  <li>We may change the price with at least 30 days' notice. The new price applies from your next billing period after the notice period.</li>
+  <li>Except where required by law, payments are non-refundable and we do not provide refunds for partial billing periods.</li>
+</ul>
+
+<h2 id="your-data">4. Your data</h2>
+<p>
+  You own the business records you put into CreditBook ("Your Data"). You give us permission to store, process and display Your Data
+  only as needed to provide and support the Service. Our <a href="{% url 'privacy_policy' %}">Privacy Policy</a> explains how we handle personal information.
+</p>
+<p>
+  You are responsible for the accuracy of Your Data and for having the right to record information about your customers and staff,
+  including any consent required by law. You can export your sales data, and you can delete your account and its data at any time from your profile page.
+</p>
+
+<h2 id="acceptable-use">5. Acceptable use</h2>
+<p>You agree not to:</p>
+<ul>
+  <li>use the Service for anything unlawful, fraudulent or deceptive;</li>
+  <li>use reminder features to harass, threaten or spam anyone, or contact people who have asked you not to;</li>
+  <li>try to access another business's data, or probe, scan or test the Service's security without our permission;</li>
+  <li>interfere with or overload the Service, or reverse-engineer it except where the law allows; or</li>
+  <li>resell or provide the Service to others without our written agreement.</li>
+</ul>
+
+<h2 id="whatsapp">6. WhatsApp and third-party services</h2>
+<p>
+  WhatsApp reminders open a chat in your own WhatsApp account. Your use of WhatsApp is governed by WhatsApp's own terms, and you are
+  responsible for the messages you send. We are not responsible for third-party services, including payment processing by Nomba.
+</p>
+
+<h2 id="availability">7. Availability and support</h2>
+<p>
+  We work to keep the Service available and reliable, but we do not guarantee it will be uninterrupted or error-free.
+  We may carry out maintenance from time to time. We recommend you export important records regularly.
+</p>
+
+<h2 id="disclaimer">8. Disclaimer</h2>
+<p>
+  CreditBook is a record-keeping tool. It does not provide accounting, tax, legal or financial advice, and figures shown in the Service
+  depend on the information you enter. To the extent permitted by law, the Service is provided "as is" without warranties of any kind.
+</p>
+
+<h2 id="liability">9. Limitation of liability</h2>
+<p>
+  To the extent permitted by law, we will not be liable for any indirect, incidental, special or consequential loss, or for lost profits,
+  revenue or data. Our total liability for any claim relating to the Service is limited to the amount you paid us in the three months before the claim arose.
+  Nothing in these terms limits liability that cannot be limited by law.
+</p>
+
+<h2 id="termination">10. Suspension and termination</h2>
+<p>
+  You can stop using CreditBook and delete your account at any time. We may suspend or close an account that breaches these terms,
+  creates a security or legal risk, or has unpaid fees. Where reasonable, we will give notice first and a chance to fix the issue.
+  Sections that by their nature should survive termination, including 4, 8, 9 and 12, will continue to apply.
+</p>
+
+<h2 id="changes">11. Changes to these terms</h2>
+<p>
+  We may update these terms. We will change the "Last updated" date above and, for material changes, notify account owners by email
+  or in the app at least 14 days before they take effect. Continuing to use the Service after that date means you accept the updated terms.
+</p>
+
+<h2 id="governing-law">12. Governing law</h2>
+<p>
+  These terms are governed by the laws of the Federal Republic of Nigeria. Any dispute that we cannot resolve informally will be
+  handled by the courts of Nigeria.
+</p>
+
+<h2 id="contact">13. Contact</h2>
+<p>
+  Questions about these terms? Email <a href="mailto:kingsmichael.x@gmail.com">kingsmichael.x@gmail.com</a>.
+</p>
 {% endblock %}

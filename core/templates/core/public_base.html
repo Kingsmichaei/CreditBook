@@ -1,0 +1,346 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  {% include 'core/_theme_head.html' %}
+  <link rel="icon" type="image/png" sizes="96x96" href="{% static 'icons/favicon-96x96.png' %}">
+  <link rel="icon" href="{% static 'icons/favicon.svg' %}" type="image/svg+xml" sizes="any">
+  <link rel="icon" href="{% static 'icons/favicon.ico' %}">
+  <link rel="apple-touch-icon" href="{% static 'icons/apple-touch-icon.png' %}">
+  <link rel="manifest" href="{% static 'icons/site.webmanifest' %}">
+  <title>{% block title %}CreditBook{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}CreditBook helps small businesses record sales and expenses, track customer debts, and send WhatsApp payment reminders from one dashboard.{% endblock %}">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+
+  <style>
+    /* ═══════════════════════════════════════════════
+       DESIGN TOKENS
+    ═══════════════════════════════════════════════ */
+    :root {
+      --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --max-w: 1160px;
+      --r-lg: 16px;
+      --r: 12px;
+      --r-sm: 8px;
+      --ease: 0.2s ease;
+
+      --green: #16a34a;
+      --amber: #d97706;
+      --red: #dc2626;
+      --whatsapp: #25d366;
+    }
+
+    [data-theme="light"] {
+      --bg: #ffffff;
+      --bg-subtle: #f7f8fa;
+      --surface: #ffffff;
+      --surface-2: #f2f4f7;
+      --border: #e4e7ec;
+      --border-2: #d0d5dd;
+      --text: #101828;
+      --text-2: #475467;
+      --text-3: #667085;
+      --brand: #2563eb;
+      --brand-hover: #1d4ed8;
+      --brand-soft: #eff4ff;
+      --brand-ink: #1d4ed8;
+      --on-brand: #ffffff;
+      --green-soft: #ecfdf3;
+      --amber-soft: #fffaeb;
+      --red-soft: #fef3f2;
+      --nav-bg: rgba(255,255,255,0.85);
+      --shadow-sm: 0 1px 2px rgba(16,24,40,0.05);
+      --shadow: 0 12px 32px -8px rgba(16,24,40,0.12), 0 4px 8px -4px rgba(16,24,40,0.06);
+      --shadow-lg: 0 32px 64px -16px rgba(16,24,40,0.18);
+      color-scheme: light;
+    }
+
+    [data-theme="dark"] {
+      --bg: #0b0f17;
+      --bg-subtle: #0f1420;
+      --surface: #131a27;
+      --surface-2: #1a2233;
+      --border: #222b3c;
+      --border-2: #2f3a50;
+      --text: #f2f4f7;
+      --text-2: #a7b0c2;
+      --text-3: #7d879b;
+      --brand: #4f8cff;
+      --brand-hover: #6b9fff;
+      --brand-soft: rgba(79,140,255,0.12);
+      --brand-ink: #8fb4ff;
+      --on-brand: #ffffff;
+      --green-soft: rgba(22,163,74,0.14);
+      --amber-soft: rgba(217,119,6,0.14);
+      --red-soft: rgba(220,38,38,0.14);
+      --nav-bg: rgba(11,15,23,0.82);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow: 0 12px 32px -8px rgba(0,0,0,0.5);
+      --shadow-lg: 0 32px 64px -16px rgba(0,0,0,0.6);
+      color-scheme: dark;
+    }
+
+    /* ═══════════════════════════════════════════════
+       BASE
+    ═══════════════════════════════════════════════ */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: 88px; -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.6;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    img, svg { display: block; max-width: 100%; }
+    a { color: var(--brand); text-decoration: none; }
+    a:hover { color: var(--brand-hover); }
+    h1, h2, h3, h4 { margin: 0; color: var(--text); letter-spacing: -0.02em; line-height: 1.2; font-weight: 700; }
+    p { margin: 0; }
+    :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: 4px; }
+
+    .container { width: 100%; max-width: var(--max-w); margin: 0 auto; padding: 0 24px; }
+    @media (max-width: 575px) { .container { padding: 0 16px; } }
+
+    /* ═══════════════════════════════════════════════
+       BUTTONS
+    ═══════════════════════════════════════════════ */
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 40px; padding: 0 16px;
+      border-radius: var(--r-sm);
+      border: 1px solid transparent;
+      font: 600 14px/1 var(--font);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: background var(--ease), border-color var(--ease), color var(--ease), box-shadow var(--ease);
+    }
+    .btn-lg { height: 48px; padding: 0 22px; font-size: 15px; }
+    .btn-primary { background: var(--brand); color: var(--on-brand); box-shadow: var(--shadow-sm); }
+    .btn-primary:hover { background: var(--brand-hover); color: var(--on-brand); }
+    .btn-secondary { background: var(--surface); color: var(--text); border-color: var(--border-2); box-shadow: var(--shadow-sm); }
+    .btn-secondary:hover { background: var(--surface-2); color: var(--text); }
+    .btn-ghost { background: transparent; color: var(--text-2); }
+    .btn-ghost:hover { background: var(--surface-2); color: var(--text); }
+    .btn-icon { width: 40px; padding: 0; font-size: 16px; }
+
+    /* ═══════════════════════════════════════════════
+       NAV
+    ═══════════════════════════════════════════════ */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: var(--nav-bg);
+      backdrop-filter: saturate(180%) blur(12px);
+      -webkit-backdrop-filter: saturate(180%) blur(12px);
+      border-bottom: 1px solid transparent;
+      transition: border-color var(--ease);
+    }
+    .site-header.scrolled { border-bottom-color: var(--border); }
+    .nav { display: flex; align-items: center; gap: 32px; height: 68px; }
+
+    .brand { display: inline-flex; align-items: center; gap: 10px; color: var(--text); font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+    .brand:hover { color: var(--text); }
+    .brand-mark {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: var(--brand); color: #fff;
+      display: grid; place-items: center; font-size: 15px;
+    }
+
+    .nav-links { display: flex; align-items: center; gap: 4px; list-style: none; margin: 0; padding: 0; }
+    .nav-links a {
+      display: block; padding: 8px 12px; border-radius: var(--r-sm);
+      font-size: 14px; font-weight: 500; color: var(--text-2);
+      transition: color var(--ease), background var(--ease);
+    }
+    .nav-links a:hover, .nav-links a[aria-current="page"] { color: var(--text); background: var(--surface-2); }
+
+    .nav-actions { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+    .nav-toggle { display: none; }
+
+    .mobile-menu { display: none; border-top: 1px solid var(--border); padding: 12px 0 20px; }
+    .mobile-menu.open { display: block; }
+    .mobile-menu > a { display: block; padding: 12px 4px; font-weight: 500; color: var(--text); border-bottom: 1px solid var(--border); }
+    .mobile-menu .mobile-cta { display: grid; gap: 10px; margin-top: 16px; }
+
+    @media (max-width: 899px) {
+      .nav-links, .nav-actions .nav-signin, .nav-actions .nav-cta { display: none; }
+      .nav-toggle { display: inline-flex; }
+    }
+
+    /* ═══════════════════════════════════════════════
+       SHARED SECTION PIECES
+    ═══════════════════════════════════════════════ */
+    .eyebrow {
+      display: inline-block;
+      font-size: 13px; font-weight: 600; letter-spacing: 0.02em;
+      color: var(--brand-ink);
+      margin-bottom: 12px;
+    }
+    .section { padding: 96px 0; }
+    .section-alt { background: var(--bg-subtle); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+    .section-head { max-width: 640px; margin-bottom: 56px; }
+    .section-head.center { margin-left: auto; margin-right: auto; text-align: center; }
+    .section-title { font-size: clamp(1.75rem, 3vw, 2.375rem); }
+    .section-lead { margin-top: 16px; font-size: 18px; color: var(--text-2); }
+    @media (max-width: 767px) {
+      .section { padding: 64px 0; }
+      .section-head { margin-bottom: 40px; }
+      .section-lead { font-size: 16px; }
+    }
+
+    /* ═══════════════════════════════════════════════
+       FOOTER
+    ═══════════════════════════════════════════════ */
+    .site-footer { border-top: 1px solid var(--border); padding: 64px 0 32px; background: var(--bg); }
+    .footer-grid { display: grid; grid-template-columns: 2fr repeat(3, 1fr); gap: 40px; }
+    .footer-about { max-width: 300px; margin-top: 14px; font-size: 14px; color: var(--text-2); }
+    .footer-heading { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 14px; }
+    .footer-links { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+    .footer-links a { font-size: 14px; color: var(--text-2); }
+    .footer-links a:hover { color: var(--text); }
+    .footer-bottom {
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px;
+      margin-top: 56px; padding-top: 24px; border-top: 1px solid var(--border);
+      font-size: 13px; color: var(--text-3);
+    }
+    .footer-bottom a { color: var(--text-3); }
+    .footer-bottom a:hover { color: var(--text); }
+    @media (max-width: 767px) {
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .footer-brand { grid-column: 1 / -1; }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<header class="site-header" id="siteHeader">
+  <div class="container">
+    <nav class="nav" aria-label="Main">
+      <a href="{% url 'landing' %}" class="brand" aria-label="CreditBook home">
+        <span class="brand-mark"><i class="bi bi-journal-bookmark-fill"></i></span>
+        CreditBook
+      </a>
+
+      <ul class="nav-links">
+        <li><a href="{% url 'landing' %}#features">Features</a></li>
+        <li><a href="{% url 'landing' %}#how-it-works">How it works</a></li>
+        <li><a href="{% url 'landing' %}#pricing">Pricing</a></li>
+        <li><a href="{% url 'landing' %}#faq">FAQ</a></li>
+        <li><a href="{% url 'about' %}" {% if request.resolver_match.url_name == 'about' %}aria-current="page"{% endif %}>About</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <button type="button" class="btn btn-ghost btn-icon" data-theme-toggle aria-label="Toggle theme">
+          <i class="bi bi-moon-fill" data-theme-icon></i>
+        </button>
+        {% if user.is_authenticated %}
+          <a href="{% url 'dashboard' %}" class="btn btn-primary nav-cta">Go to dashboard</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="btn btn-ghost nav-signin">Sign in</a>
+          <a href="{% url 'register' %}" class="btn btn-primary nav-cta">Start free trial</a>
+        {% endif %}
+        <button type="button" class="btn btn-ghost btn-icon nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false" aria-controls="mobileMenu">
+          <i class="bi bi-list" style="font-size:20px"></i>
+        </button>
+      </div>
+    </nav>
+
+    <div class="mobile-menu" id="mobileMenu">
+      <a href="{% url 'landing' %}#features">Features</a>
+      <a href="{% url 'landing' %}#how-it-works">How it works</a>
+      <a href="{% url 'landing' %}#pricing">Pricing</a>
+      <a href="{% url 'landing' %}#faq">FAQ</a>
+      <a href="{% url 'about' %}">About</a>
+      <a href="{% url 'contact' %}">Contact</a>
+      <div class="mobile-cta">
+        {% if user.is_authenticated %}
+          <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg">Go to dashboard</a>
+        {% else %}
+          <a href="{% url 'register' %}" class="btn btn-primary btn-lg">Start free trial</a>
+          <a href="{% url 'login' %}" class="btn btn-secondary btn-lg">Sign in</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="{% url 'landing' %}" class="brand">
+          <span class="brand-mark"><i class="bi bi-journal-bookmark-fill"></i></span>
+          CreditBook
+        </a>
+        <p class="footer-about">Sales, expenses and customer debts for small businesses, kept in one place.</p>
+      </div>
+      <div>
+        <div class="footer-heading">Product</div>
+        <ul class="footer-links">
+          <li><a href="{% url 'landing' %}#features">Features</a></li>
+          <li><a href="{% url 'landing' %}#pricing">Pricing</a></li>
+          <li><a href="{% url 'landing' %}#faq">FAQ</a></li>
+          <li><a href="{% url 'register' %}">Start free trial</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-heading">Company</div>
+        <ul class="footer-links">
+          <li><a href="{% url 'about' %}">About</a></li>
+          <li><a href="{% url 'contact' %}">Contact</a></li>
+          <li><a href="{% url 'login' %}">Sign in</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="footer-heading">Legal</div>
+        <ul class="footer-links">
+          <li><a href="{% url 'privacy_policy' %}">Privacy Policy</a></li>
+          <li><a href="{% url 'terms_of_service' %}">Terms of Service</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; {% now "Y" %} CreditBook. A product of Omkcode.</span>
+      <span><a href="{% url 'privacy_policy' %}">Privacy</a> &nbsp;·&nbsp; <a href="{% url 'terms_of_service' %}">Terms</a> &nbsp;·&nbsp; <a href="{% url 'contact' %}">Contact</a></span>
+    </div>
+  </div>
+</footer>
+
+{% include 'core/_theme_script.html' %}
+<script>
+  (function () {
+    var header = document.getElementById('siteHeader');
+    var toggle = document.getElementById('navToggle');
+    var menu = document.getElementById('mobileMenu');
+
+    function onScroll() { header.classList.toggle('scrolled', window.scrollY > 4); }
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    function setMenu(open) {
+      menu.classList.toggle('open', open);
+      toggle.setAttribute('aria-expanded', open);
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      toggle.querySelector('i').className = open ? 'bi bi-x-lg' : 'bi bi-list';
+    }
+    toggle.addEventListener('click', function () { setMenu(!menu.classList.contains('open')); });
+    menu.querySelectorAll('a').forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
+  })();
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

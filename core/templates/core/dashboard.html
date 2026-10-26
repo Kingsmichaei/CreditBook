@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% block title %}Dashboard — SYLVALINE Ventures{% endblock %}
+{% block title %}Dashboard — {{ business_name }}{% endblock %}
 {% block page_title %}Dashboard{% endblock %}
 
 {% block content %}
@@ -165,7 +165,7 @@
             <div>
               <div style="font-family:var(--font-display);font-weight:700;color:var(--accent-3);font-size:15px;text-align:right;">₦{{ debt.amount|floatformat:0 }}</div>
               {% if debt.customer.phone %}
-              <a href="https://wa.me/{{ debt.customer.whatsapp_number }}?text=Hello+{{ debt.customer.name|urlencode }},+this+is+a+reminder+from+Complete+SYLVALINE+Ventures+about+your+outstanding+debt+of+%E2%82%A6{{ debt.amount|floatformat:0 }}.+Please+make+payment+at+your+earliest+convenience.+Thank+you." target="_blank" class="btn-sv btn-sv-whatsapp mt-1" style="font-size:10px;padding:3px 8px;">
+              <a href="https://wa.me/{{ debt.customer.whatsapp_number }}?text=Hello+{{ debt.customer.name|urlencode }},+this+is+a+reminder+from+{{ business_name|urlencode }}+about+your+outstanding+debt+of+{{ business_currency|urlencode }}{{ debt.amount|floatformat:0 }}.+Please+make+payment+at+your+earliest+convenience.+Thank+you." target="_blank" class="btn-sv btn-sv-whatsapp mt-1" style="font-size:10px;padding:3px 8px;">
                 <i class="bi bi-whatsapp"></i> Remind
               </a>
               {% endif %}

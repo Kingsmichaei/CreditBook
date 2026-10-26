@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  {% include 'core/_theme_head.html' %}
   <link rel="icon" type="image/png" sizes="96x96" href="{% static 'icons/favicon-96x96.png' %}">
   <link rel="icon" href="{% static 'icons/favicon.svg' %}" type="image/svg+xml" sizes="any">
   <link rel="icon" href="{% static 'icons/favicon.ico' %}">
@@ -443,9 +444,9 @@
   <div class="orb orb-2"></div>
 
   <!-- Theme pill -->
-  <button class="theme-pill" id="themeToggle">
-    <i class="bi bi-moon-fill" id="themeIcon"></i>
-    <span id="themeLabel">Light</span>
+  <button type="button" class="theme-pill" data-theme-toggle aria-label="Toggle theme">
+    <i class="bi bi-moon-fill" data-theme-icon></i>
+    <span data-theme-label>Light</span>
   </button>
 
   <div class="page-wrap">
@@ -669,25 +670,9 @@
 
   </div><!-- /page-wrap -->
 
+  {% include 'core/_theme_script.html' %}
+
   <script>
-    /* ── Theme ────────────────────────────────── */
-    const html  = document.documentElement;
-    const tog   = document.getElementById('themeToggle');
-    const icon  = document.getElementById('themeIcon');
-    const lbl   = document.getElementById('themeLabel');
-
-    function applyTheme(t) {
-      html.setAttribute('data-theme', t);
-      localStorage.setItem('bm-theme', t);
-      icon.className  = t === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
-      lbl.textContent = t === 'dark' ? 'Dark' : 'Light';
-    }
-
-    applyTheme(localStorage.getItem('bm-theme') || 'light');
-    tog.addEventListener('click', () => {
-      applyTheme(html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    });
-
     /* ── Password toggles ─────────────────────── */
     function togglePw(inputId, eyeId) {
       // Find by position in DOM since Django renders inputs without our IDs

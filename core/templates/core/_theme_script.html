@@ -1,0 +1,47 @@
+{# Include before </body>. Wires every [data-theme-toggle] and keeps [data-theme-icon] / [data-theme-label] in sync. #}
+<script>
+  (function () {
+    var root = document.documentElement;
+
+    function releaseTransitions() {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () { root.classList.remove('sv-no-transition'); });
+      });
+    }
+
+    function sync(theme) {
+      document.querySelectorAll('[data-theme-icon]').forEach(function (el) {
+        el.classList.remove('bi-moon-fill', 'bi-sun-fill');
+        el.classList.add(theme === 'dark' ? 'bi-moon-fill' : 'bi-sun-fill');
+      });
+      document.querySelectorAll('[data-theme-label]').forEach(function (el) {
+        el.textContent = theme === 'dark' ? 'Dark' : 'Light';
+      });
+      document.querySelectorAll('[data-theme-toggle]').forEach(function (el) {
+        el.setAttribute('aria-label', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+        el.setAttribute('title', theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
+      });
+    }
+
+    function setTheme(theme) {
+      root.classList.add('sv-no-transition');
+      root.setAttribute('data-theme', theme);
+      try {
+        localStorage.setItem('sv-theme', theme);
+        localStorage.removeItem('bm-theme');
+      } catch (e) {}
+      sync(theme);
+      releaseTransitions();
+      window.dispatchEvent(new Event('sv-theme-change'));
+    }
+
+    document.querySelectorAll('[data-theme-toggle]').forEach(function (el) {
+      el.addEventListener('click', function () {
+        setTheme(root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+      });
+    });
+
+    sync(root.getAttribute('data-theme') || 'light');
+    releaseTransitions();
+  })();
+</script>

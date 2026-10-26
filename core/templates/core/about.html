@@ -1,34 +1,48 @@
 {% extends 'core/static_page.html' %}
 
 {% block title %}About | CreditBook{% endblock %}
-{% block page_heading %}About CreditBook{% endblock %}
-{% block page_subtitle %}Learn more about the product and the team behind it.{% endblock %}
+{% block meta_description %}Why we built CreditBook and who is behind it.{% endblock %}
+{% block page_eyebrow %}About{% endblock %}
+{% block page_heading %}Bookkeeping for the businesses that run on trust{% endblock %}
+{% block page_subtitle %}Many small businesses sell on credit to customers they know. CreditBook makes sure that trust doesn't cost them money.{% endblock %}
 
-{% block content %}
-  <p class="section-text">
-    CreditBook is built to help small businesses manage customers, sales, expenses, and outstanding debts in one secure workspace.
-    It was created by Omkcode to make business finance management easier, faster, and more reliable.
-  </p>
+{% block article %}
+<h2>Why CreditBook exists</h2>
+<p>
+  In shops, markets and service businesses, a lot of trade happens on credit: a regular customer takes goods today and pays at the end of the month.
+  It's good for business, but it's usually tracked in a notebook or from memory, and that's where money quietly goes missing.
+</p>
+<p>
+  CreditBook replaces the notebook with a simple ledger that lives on your phone and computer. Record a sale or a debt in seconds,
+  see what's overdue at a glance, and send a polite WhatsApp reminder without the awkward conversation.
+</p>
 
-  <div class="row g-4">
-    <div class="col-md-6">
-      <div class="page-card">
-        <h2 class="section-heading">Our Mission</h2>
-        <p class="section-text">
-          We want every business owner to have a simple, beautiful tool for tracking sales, recording expenses,
-          and recovering customer payments without juggling spreadsheets.
-        </p>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="page-card">
-        <h2 class="section-heading">About the Founder</h2>
-        <p class="section-text">
-          CreditBook is developed by Omkcode, led by Kings Michael.
-          You can find more work at <a href="https://kingsmichael.tech" target="_blank">kingsmichael.tech</a> and explore open source projects
-          at <a href="https://github.com/Omkcode" target="_blank">github.com/Omkcode</a>.
-        </p>
-      </div>
-    </div>
+<h2>What we care about</h2>
+<div class="card-grid">
+  <div class="info-card">
+    <div class="icon"><i class="bi bi-lightning-charge"></i></div>
+    <h3>Simplicity</h3>
+    <p>If it takes more than a few taps to record a sale, it won't get recorded. We keep every workflow short.</p>
   </div>
+  <div class="info-card">
+    <div class="icon"><i class="bi bi-shield-check"></i></div>
+    <h3>Trustworthy records</h3>
+    <p>Your numbers need to be right, private and there when you need them, on any device.</p>
+  </div>
+  <div class="info-card">
+    <div class="icon"><i class="bi bi-cash-coin"></i></div>
+    <h3>Fair pricing</h3>
+    <p>One plan with every feature, and a free trial long enough to know whether it works for you.</p>
+  </div>
+</div>
+
+<h2>Who's behind it</h2>
+<p>
+  CreditBook is built and run by <strong>Omkcode</strong>, an independent software studio led by Kings Michael.
+  You can see more of our work at <a href="https://kingsmichael.tech" target="_blank" rel="noopener">kingsmichael.tech</a>
+  and on <a href="https://github.com/Omkcode" target="_blank" rel="noopener">GitHub</a>.
+</p>
+<p>
+  We read every message we receive. If you have feedback or an idea for CreditBook, <a href="{% url 'contact' %}">we'd like to hear it</a>.
+</p>
 {% endblock %}

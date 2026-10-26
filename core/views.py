@@ -58,7 +58,7 @@ def _can_manage_staff(request):
 
 
 def landing_page(request):
-    return render(request, 'core/landing.html')
+    return render(request, 'core/landing.html', {'subscription_price': settings.SUBSCRIPTION_PRICE_NGN})
 
 
 def about_view(request):
@@ -113,8 +113,8 @@ def delete_account(request):
             user_email = user.email
             send_mail(
                 'Account Deleted Successfully',
-                'Your account has been permanently deleted, and all associated data has been removed in accordance with our data retention policy.',
-                'We are sorry to see you go. Thank you for using CreditBook. If you decide to return in the future, you are welcome to create a new account at any time.',
+                'Your account has been permanently deleted, and all associated data has been removed in accordance with our data retention policy.\n\n'
+                'We are sorry to see you go. Thank you for using CreditBook. If you decide to return in the future, you are welcome to create a new account at any time.\n\n'
                 'If you did not request this deletion, please contact our support team immediately.',
                 settings.DEFAULT_FROM_EMAIL,
                 [user_email],

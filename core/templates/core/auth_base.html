@@ -4,6 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  {% include 'core/_theme_head.html' %}
   <link rel="icon" type="image/png" sizes="96x96" href="{% static 'icons/favicon-96x96.png' %}">
   <link rel="icon" href="{% static 'icons/favicon.svg' %}" type="image/svg+xml" sizes="any">
   <link rel="icon" href="{% static 'icons/favicon.ico' %}">
@@ -30,7 +31,9 @@
       --bg-3: #131929;
       --surface: rgba(255,255,255,0.06);
       --surface-2: rgba(255,255,255,0.1);
+      --surface-hover: rgba(255,255,255,0.12);
       --border: rgba(255,255,255,0.11);
+      --border-2: rgba(255,255,255,0.18);
       --text: #f0f4ff;
       --text-2: rgba(240,244,255,0.7);
       --text-3: rgba(240,244,255,0.5);
@@ -44,7 +47,9 @@
       --bg-3: #ffffff;
       --surface: rgba(255,255,255,0.95);
       --surface-2: rgba(255,255,255,0.98);
+      --surface-hover: rgba(13,27,42,0.04);
       --border: rgba(13,27,42,0.12);
+      --border-2: rgba(13,27,42,0.2);
       --text: #0f172a;
       --text-2: rgba(15,23,42,0.68);
       --text-3: rgba(15,23,42,0.45);
@@ -174,36 +179,18 @@
   </style>
 </head>
 <body>
-  <div class="theme-toggle" id="themeToggle" title="Toggle theme">
-    <div class="theme-toggle-thumb">
-      <i class="bi bi-moon-fill" id="themeIcon" style="font-size:10px"></i>
-    </div>
-  </div>
+  <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
+    <span class="theme-toggle-thumb">
+      <i class="bi bi-moon-fill" data-theme-icon style="font-size:10px"></i>
+    </span>
+  </button>
   <main class="auth-page">
     <div class="auth-card">
       {% block content %}{% endblock %}
     </div>
   </main>
 
-  <script>
-    const html = document.documentElement;
-    const themeToggle = document.getElementById('themeToggle');
-    const themeIcon = document.getElementById('themeIcon');
-
-    function applyTheme(theme) {
-      html.setAttribute('data-theme', theme);
-      localStorage.setItem('sv-theme', theme);
-      themeIcon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
-    }
-
-    const savedTheme = localStorage.getItem('sv-theme') || 'light';
-    applyTheme(savedTheme);
-
-    themeToggle.addEventListener('click', () => {
-      const nextTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-      applyTheme(nextTheme);
-    });
-  </script>
+  {% include 'core/_theme_script.html' %}
   {% block extra_js %}{% endblock %}
 </body>
 </html>

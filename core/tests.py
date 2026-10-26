@@ -1,3 +1,5 @@
+import re
+
 from django.contrib.auth import get_user_model
 from django.core import mail
 from django.test import TestCase
@@ -126,17 +128,33 @@ class AccountManagementTests(TestCase):
         self.client.force_login(user)
         response = self.client.post(reverse('delete_account'), {'confirm_email': user.email})
 
-        self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('delete_account'))
+        self.assertEqual(response.status_code, 200)
         self.assertEqual(len(mail.outbox), 1)
-        self.assertIn('Confirm your CreditBook account deletion', mail.outbox[0].subject)
+        self.assertIn('Your CreditBook account deletion code', mail.outbox[0].subject)
 
-        confirmation_link = mail.outbox[0].body.split('http://testserver')[1].split('\n', 1)[0]
-        confirmation_response = self.client.get(confirmation_link)
+        code = re.search(r'verification code is: (\d{6})', mail.outbox[0].body).group(1)
+        confirmation_response = self.client.post(reverse('delete_account'), {'verification_code': code})
 
-        self.assertEqual(confirmation_response.status_code, 302)
         self.assertRedirects(confirmation_response, reverse('landing'))
         self.assertFalse(get_user_model().objects.filter(pk=user.pk).exists())
+        self.assertEqual(len(mail.outbox), 2)
+        self.assertEqual(mail.outbox[1].subject, 'Account Deleted Successfully')
+        self.assertEqual(mail.outbox[1].to, ['delete@example.com'])
+
+    def test_delete_account_rejects_wrong_verification_code(self):
+        user = get_user_model().objects.create_user(username='keepuser', email='keep@example.com', password='StrongPass123')
+        tenant = Tenant.objects.create(owner=user, business_name='Keep Co', slug='keepco')
+        TenantMembership.objects.create(user=user, tenant=tenant, role='owner')
+
+        self.client.force_login(user)
+        self.client.post(reverse('delete_account'), {'confirm_email': user.email})
+        code = re.search(r'verification code is: (\d{6})', mail.outbox[0].body).group(1)
+        wrong_code = f'{(int(code) + 1) % 1000000:06d}'
+
+        response = self.client.post(reverse('delete_account'), {'verification_code': wrong_code})
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(get_user_model().objects.filter(pk=user.pk).exists())
 
 
 class StaffNavigationTests(TestCase):

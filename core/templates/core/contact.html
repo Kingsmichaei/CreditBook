@@ -1,31 +1,38 @@
 {% extends 'core/static_page.html' %}
 
 {% block title %}Contact | CreditBook{% endblock %}
-{% block page_heading %}Contact Omkcode{% endblock %}
-{% block page_subtitle %}Get in touch for product support, business inquiries, or partnership opportunities.{% endblock %}
+{% block meta_description %}Get help with CreditBook or contact the team.{% endblock %}
+{% block page_eyebrow %}Contact{% endblock %}
+{% block page_heading %}How can we help?{% endblock %}
+{% block page_subtitle %}Questions about your account, billing, or whether CreditBook fits your business? We're happy to help.{% endblock %}
 
-{% block content %}
-  <p class="section-text">
-    Have a question or need support? Reach out directly to the team behind CreditBook.
-  </p>
-
-  <div class="row g-4">
-    <div class="col-md-6">
-      <div class="page-card">
-        <h2 class="section-heading">Email</h2>
-        <p class="section-text">
-          Send your message to <a href="mailto:kingsmichael.x@gmail.com">kingsmichael.x@gmail.com</a> and we will respond as quickly as possible.
-        </p>
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="page-card">
-        <h2 class="section-heading">Online</h2>
-        <p class="section-text">
-          Visit <a href="https://kingsmichael.tech" target="_blank">kingsmichael.tech</a> for more about the brand, and browse code on
-          <a href="https://github.com/Omkcode" target="_blank">github.com/Omkcode</a>.
-        </p>
-      </div>
-    </div>
+{% block article %}
+<div class="card-grid">
+  <div class="info-card">
+    <div class="icon"><i class="bi bi-envelope"></i></div>
+    <h3>Email support</h3>
+    <p>For account, billing and technical questions. We usually reply within one business day.</p>
+    <p style="margin-top:12px"><a href="mailto:kingsmichael.x@gmail.com">kingsmichael.x@gmail.com</a></p>
   </div>
+  <div class="info-card">
+    <div class="icon"><i class="bi bi-briefcase"></i></div>
+    <h3>Business and partnerships</h3>
+    <p>Reselling, integrations or larger teams. Tell us a little about your business.</p>
+    <p style="margin-top:12px"><a href="mailto:kingsmichael.x@gmail.com?subject=CreditBook%20partnership">Email the team</a></p>
+  </div>
+  <div class="info-card">
+    <div class="icon"><i class="bi bi-globe2"></i></div>
+    <h3>Online</h3>
+    <p>Learn more about Omkcode, the studio behind CreditBook.</p>
+    <p style="margin-top:12px"><a href="https://kingsmichael.tech" target="_blank" rel="noopener">kingsmichael.tech</a></p>
+  </div>
+</div>
+
+<h2>Before you write</h2>
+<ul>
+  <li><strong>Forgot your password?</strong> <a href="{% url 'password_reset' %}">Reset it here</a>.</li>
+  <li><strong>Questions about the free trial or pricing?</strong> See the <a href="{% url 'landing' %}#faq">FAQ</a>.</li>
+  <li><strong>Privacy or data requests?</strong> Read our <a href="{% url 'privacy_policy' %}">Privacy Policy</a>, then email us with "Privacy" in the subject line.</li>
+</ul>
+<p>To help us respond faster, include your business name and the email address on your account.</p>
 {% endblock %}

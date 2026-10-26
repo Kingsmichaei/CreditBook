@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  {% include 'core/_theme_head.html' %}
   <link rel="icon" type="image/png" sizes="96x96" href="{% static 'icons/favicon-96x96.png' %}">
   <link rel="icon" href="{% static 'icons/favicon.svg' %}" type="image/svg+xml" sizes="any">
   <link rel="icon" href="{% static 'icons/favicon.ico' %}">
@@ -685,16 +686,19 @@
       border: 1px solid var(--border);
       position: relative;
       cursor: pointer;
-      transition: all var(--transition);
+      transition: background var(--transition), border-color var(--transition);
       display: flex; align-items: center;
       padding: 2px;
+      color: #001a0f;
     }
+
+    .theme-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
     .theme-toggle-thumb {
       width: 22px; height: 22px;
       background: var(--accent);
       border-radius: 50%;
-      transition: all 0.3s ease;
+      transition: transform 0.25s ease;
       transform: translateX(0);
       display: flex; align-items: center; justify-content: center;
       font-size: 11px;
@@ -1009,11 +1013,11 @@
   </button>
   <div class="topbar-title">{% block page_title %}Dashboard{% endblock %}</div>
   <div class="topbar-actions">
-    <div class="theme-toggle" id="themeToggle" title="Toggle theme">
-      <div class="theme-toggle-thumb">
-        <i class="bi bi-moon-fill" id="themeIcon" style="font-size:9px;"></i>
-      </div>
-    </div>
+    <button type="button" class="theme-toggle" data-theme-toggle aria-label="Toggle theme">
+      <span class="theme-toggle-thumb">
+        <i class="bi bi-moon-fill" data-theme-icon style="font-size:9px;"></i>
+      </span>
+    </button>
   </div>
 </header>
 
@@ -1059,28 +1063,9 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
 
+{% include 'core/_theme_script.html' %}
+
 <script>
-  // ─── Theme ──────────────────────────────────────────────
-  const html = document.documentElement;
-  const themeToggle = document.getElementById('themeToggle');
-  const themeIcon = document.getElementById('themeIcon');
-
-  function applyTheme(theme) {
-    html.setAttribute('data-theme', theme);
-    localStorage.setItem('sv-theme', theme);
-    themeIcon.className = theme === 'dark' ? 'bi bi-moon-fill' : 'bi bi-sun-fill';
-    themeIcon.style.fontSize = '9px';
-  }
-
-  const savedTheme = localStorage.getItem('sv-theme') || 'light';
-  applyTheme(savedTheme);
-
-  themeToggle.addEventListener('click', () => {
-    const nextTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-    applyTheme(nextTheme);
-    window.dispatchEvent(new Event('sv-theme-change'));
-  });
-
   // ─── Sidebar ────────────────────────────────────────────
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('sidebarOverlay');

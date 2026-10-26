@@ -1,5 +1,5 @@
 {% extends 'core/base.html' %}
-{% block title %}{{ customer.name }} — SYLVALINE Ventures{% endblock %}
+{% block title %}{{ customer.name }} — {{ business_name }}{% endblock %}
 {% block page_title %}{{ customer.name }}{% endblock %}
 
 {% block content %}
@@ -68,7 +68,7 @@
 
         {% if customer.total_debt > 0 %}
         <div class="divider"></div>
-        <a href="https://wa.me/{{ customer.whatsapp_number }}?text=Hello+{{ customer.name|urlencode }},+this+is+a+reminder+from+Complete+SYLVALINE+Ventures.+Your+outstanding+balance+is+%E2%82%A6{{ customer.total_debt|floatformat:0 }}.+Please+make+payment+at+your+earliest+convenience.+Thank+you." target="_blank" class="btn-sv btn-sv-whatsapp w-100 justify-content-center">
+        <a href="https://wa.me/{{ customer.whatsapp_number }}?text=Hello+{{ customer.name|urlencode }},+this+is+a+reminder+from+{{ business_name|urlencode }}.+Your+outstanding+balance+is+{{ business_currency|urlencode }}{{ customer.total_debt|floatformat:0 }}.+Please+make+payment+at+your+earliest+convenience.+Thank+you." target="_blank" class="btn-sv btn-sv-whatsapp w-100 justify-content-center">
           <i class="bi bi-whatsapp"></i> Send Debt Reminder on WhatsApp
         </a>
         {% endif %}

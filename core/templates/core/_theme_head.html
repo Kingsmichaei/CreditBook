@@ -1,0 +1,17 @@
+{# Include as early as possible in <head>. Resolves the theme before first paint so pages never flash the wrong colours. #}
+<script>
+  (function () {
+    var root = document.documentElement, theme;
+    try { theme = localStorage.getItem('sv-theme') || localStorage.getItem('bm-theme'); } catch (e) {}
+    if (theme !== 'dark' && theme !== 'light') {
+      theme = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+    root.setAttribute('data-theme', theme);
+    root.classList.add('sv-no-transition');
+  })();
+</script>
+<style>
+  /* Suppress colour transitions while the theme is being applied, so everything switches in one frame. */
+  .sv-no-transition *, .sv-no-transition *::before, .sv-no-transition *::after { transition: none !important; }
+  .sv-no-transition .theme-toggle-thumb { transition: transform 0.25s ease !important; }
+</style>
