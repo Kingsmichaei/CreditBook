@@ -1,0 +1,59 @@
+{# Shared design tokens for every layout (public_base, base, auth_base). Include inside a <style> block; layouts add their own background and spacing tokens on top. #}
+    :root {
+      --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      --whatsapp: #25d366;
+    }
+
+    [data-theme="light"] {
+      --surface: #ffffff;
+      --surface-2: #f2f4f7;
+      --border: #e4e7ec;
+      --border-2: #d0d5dd;
+      --text: #101828;
+      --text-2: #475467;
+      --text-3: #667085;
+      --brand: #2563eb;
+      --brand-hover: #1d4ed8;
+      --brand-soft: #eff4ff;
+      --brand-ink: #1d4ed8;
+      --on-brand: #ffffff;
+      --ring: rgba(37,99,235,0.18);
+      --green: #16a34a;
+      --green-soft: #ecfdf3;
+      --amber: #d97706;
+      --amber-soft: #fffaeb;
+      --red: #dc2626;
+      --red-soft: #fef3f2;
+      --nav-bg: rgba(255,255,255,0.85);
+      --shadow-sm: 0 1px 2px rgba(16,24,40,0.05);
+      --shadow: 0 12px 32px -8px rgba(16,24,40,0.12), 0 4px 8px -4px rgba(16,24,40,0.06);
+      --shadow-lg: 0 32px 64px -16px rgba(16,24,40,0.18);
+      color-scheme: light;
+    }
+
+    [data-theme="dark"] {
+      --surface: #131a27;
+      --surface-2: #1a2233;
+      --border: #222b3c;
+      --border-2: #2f3a50;
+      --text: #f2f4f7;
+      --text-2: #a7b0c2;
+      --text-3: #7d879b;
+      --brand: #4f8cff;
+      --brand-hover: #6b9fff;
+      --brand-soft: rgba(79,140,255,0.12);
+      --brand-ink: #8fb4ff;
+      --on-brand: #ffffff;
+      --ring: rgba(79,140,255,0.28);
+      --green: #22c55e;
+      --green-soft: rgba(34,197,94,0.14);
+      --amber: #f59e0b;
+      --amber-soft: rgba(245,158,11,0.14);
+      --red: #f87171;
+      --red-soft: rgba(248,113,113,0.14);
+      --nav-bg: rgba(11,15,23,0.82);
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+      --shadow: 0 12px 32px -8px rgba(0,0,0,0.5);
+      --shadow-lg: 0 32px 64px -16px rgba(0,0,0,0.6);
+      color-scheme: dark;
+    }

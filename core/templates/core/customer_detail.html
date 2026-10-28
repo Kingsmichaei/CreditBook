@@ -160,7 +160,7 @@
             <td style="font-weight:600;">{{ sale.product }}</td>
             <td>{{ sale.quantity }}</td>
             <td>₦{{ sale.unit_price|floatformat:0 }}</td>
-            <td style="font-family:var(--font-display);font-weight:700;color:var(--accent);">₦{{ sale.total|floatformat:0 }}</td>
+            <td style="font-family:var(--font-display);font-weight:700;color:var(--green);">₦{{ sale.total|floatformat:0 }}</td>
             <td>
               <span class="sv-badge {% if sale.payment_method == 'cash' %}badge-green{% elif sale.payment_method == 'credit' %}badge-red{% else %}badge-blue{% endif %}">
                 {{ sale.get_payment_method_display }}

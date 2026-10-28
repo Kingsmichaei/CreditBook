@@ -3,6 +3,9 @@ from django.utils import timezone
 from .models import Sale, Expense, Debt, Customer, Staff, TenantMembership
 
 
+ROLE_LABELS = {'owner': 'Owner', 'manager': 'Manager', 'staff': 'Team member'}
+
+
 def business_stats(request):
     """Global context for all templates."""
     tenant = getattr(request, 'tenant', None)
@@ -10,10 +13,16 @@ def business_stats(request):
     month_start = today.replace(day=1)
 
     show_tenant_admin_links = False
+    current_role_label = ''
     if request.user.is_authenticated and tenant is not None:
+        membership = TenantMembership.objects.filter(user=request.user, tenant=tenant).first()
+        if membership is not None:
+            current_role_label = ROLE_LABELS.get(membership.role, membership.get_role_display())
+        elif request.user.is_superuser:
+            current_role_label = 'Platform admin'
         show_tenant_admin_links = (
             request.user.is_superuser or
-            TenantMembership.objects.filter(user=request.user, tenant=tenant, role__in=['owner', 'manager']).exists()
+            (membership is not None and membership.role in ['owner', 'manager'])
         )
 
     sales = Sale.objects.filter(date__gte=month_start)
@@ -44,4 +53,5 @@ def business_stats(request):
         'active_staff_count': staff.count(),
         'customers_count': customers.count(),
         'show_tenant_admin_links': show_tenant_admin_links,
+        'current_role_label': current_role_label,
     }

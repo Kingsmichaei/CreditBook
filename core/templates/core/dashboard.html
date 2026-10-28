@@ -9,7 +9,7 @@
   <div class="d-flex align-items-center justify-content-between mb-4">
     <div>
       <h1 style="font-family:var(--font-display);font-size:26px;font-weight:800;color:var(--text);margin:0;">
-        Good {% now "G" as hour %}{% if hour|add:"0" < 12 %}Morning{% elif hour|add:"0" < 17 %}Afternoon{% else %}Evening{% endif %} 👋
+        Good {% now "G" as hour %}{% if hour|add:"0" < 12 %}Morning{% elif hour|add:"0" < 17 %}Afternoon{% else %}Evening{% endif %}
       </h1>
       <p style="color:var(--text-2);font-size:14px;margin-top:4px;">
         Here's what's happening at {{ business_name }} today.
@@ -121,7 +121,7 @@
                 {{ sale.customer.name|default:"Walk-in" }} · {{ sale.date }}
               </div>
             </div>
-            <div style="font-family:var(--font-display);font-weight:700;color:var(--accent);font-size:15px;white-space:nowrap;">
+            <div style="font-weight:700;color:var(--green);font-size:15px;white-space:nowrap;font-variant-numeric:tabular-nums;">
               ₦{{ sale.total|floatformat:0 }}
             </div>
           </div>
@@ -233,121 +233,94 @@ const mLabels = {{ monthly_labels|safe }};
 const mSales  = {{ monthly_sales_data|safe }};
 const mExp    = {{ monthly_expense_data|safe }};
 
-const isDark = () => document.documentElement.getAttribute('data-theme') === 'dark';
-const tickColor = () => isDark() ? '#f0f4ff' : '#0d1b2a';
-const gridColor = () => isDark() ? 'rgba(255,255,255,0.11)' : 'rgba(13,27,42,0.12)';
-const borderColor = () => isDark() ? 'rgba(255,255,255,0.15)' : 'rgba(13,27,42,0.18)';
+// Series colours come from the theme tokens in base.html so charts match the rest of the UI.
+const SERIES = [
+  { label: 'Sales', colorVar: '--brand' },
+  { label: 'Expenses', colorVar: '--amber' },
+];
 
-// 7-Day Chart
-const weekCtx = document.getElementById('weekChart').getContext('2d');
-const weekChart = new Chart(weekCtx, {
-  type: 'bar',
-  data: {
-    labels: labels7,
-    datasets: [
-      {
-        label: 'Sales',
-        data: sales7,
-        backgroundColor: 'rgba(0,229,160,0.25)',
-        borderColor: '#00e5a0',
-        borderWidth: 2,
-        borderRadius: 6,
-      },
-      {
-        label: 'Expenses',
-        data: exp7,
-        backgroundColor: 'rgba(244,63,94,0.25)',
-        borderColor: '#f43f5e',
-        borderWidth: 2,
-        borderRadius: 6,
-      }
-    ]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: { labels: { color: tickColor(), boxWidth: 12, font: { size: 12 } } },
-      tooltip: { titleColor: tickColor(), bodyColor: tickColor(), backgroundColor: isDark() ? '#111827' : '#ffffff', borderColor: borderColor(), borderWidth: 1 }
-    },
-    scales: {
-      y: {
-        grid: { color: gridColor(), borderColor: borderColor() },
-        ticks: { color: tickColor(), font: { size: 11 } }
-      },
-      x: {
-        grid: { display: false },
-        ticks: { color: tickColor(), font: { size: 11 } }
-      }
-    }
-  }
-});
-
-// Monthly Chart
-const monthCtx = document.getElementById('monthChart').getContext('2d');
-const monthChart = new Chart(monthCtx, {
-  type: 'line',
-  data: {
-    labels: mLabels,
-    datasets: [
-      {
-        label: 'Sales',
-        data: mSales,
-        borderColor: '#00e5a0',
-        backgroundColor: 'rgba(0,229,160,0.12)',
-        tension: 0.4,
-        fill: true,
-        pointRadius: 4,
-        pointBackgroundColor: '#00e5a0',
-      },
-      {
-        label: 'Expenses',
-        data: mExp,
-        borderColor: '#f43f5e',
-        backgroundColor: 'rgba(244,63,94,0.12)',
-        tension: 0.4,
-        fill: true,
-        pointRadius: 4,
-        pointBackgroundColor: '#f43f5e',
-      }
-    ]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: { labels: { color: tickColor(), boxWidth: 12, font: { size: 12 } } },
-      tooltip: { titleColor: tickColor(), bodyColor: tickColor(), backgroundColor: isDark() ? '#111827' : '#ffffff', borderColor: borderColor(), borderWidth: 1 }
-    },
-    scales: {
-      y: {
-        grid: { color: gridColor(), borderColor: borderColor() },
-        ticks: { color: tickColor(), font: { size: 11 } }
-      },
-      x: {
-        grid: { display: false },
-        ticks: { color: tickColor(), font: { size: 11 } }
-      }
-    }
-  }
-});
-
-function refreshChartTheme(chart) {
-  chart.options.plugins.legend.labels.color = tickColor();
-  chart.options.plugins.tooltip.titleColor = tickColor();
-  chart.options.plugins.tooltip.bodyColor = tickColor();
-  chart.options.plugins.tooltip.backgroundColor = isDark() ? '#111827' : '#ffffff';
-  chart.options.plugins.tooltip.borderColor = borderColor();
-  chart.options.scales.y.grid.color = gridColor();
-  chart.options.scales.y.grid.borderColor = borderColor();
-  chart.options.scales.y.ticks.color = tickColor();
-  chart.options.scales.x.ticks.color = tickColor();
-  chart.update();
+function withAlpha(hex, alpha) {
+  const h = hex.replace('#', '');
+  const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+  return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${alpha})`;
 }
 
+function themedOptions() {
+  return {
+    responsive: true,
+    maintainAspectRatio: true,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { position: 'bottom', align: 'start', labels: { color: cssVar('--text-2'), boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: 'rectRounded', font: { size: 12 } } },
+      tooltip: {
+        backgroundColor: cssVar('--surface'), titleColor: cssVar('--text'), bodyColor: cssVar('--text-2'),
+        borderColor: cssVar('--border'), borderWidth: 1, padding: 10, cornerRadius: 8, boxPadding: 4,
+        callbacks: { label: ctx => ` ${ctx.dataset.label}: ₦${Number(ctx.parsed.y).toLocaleString()}` }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        border: { display: false },
+        grid: { color: cssVar('--border') },
+        ticks: { color: cssVar('--text-3'), font: { size: 11 }, callback: v => '₦' + Number(v).toLocaleString() }
+      },
+      x: {
+        border: { display: false },
+        grid: { display: false },
+        ticks: { color: cssVar('--text-3'), font: { size: 11 } }
+      }
+    }
+  };
+}
+
+function barDatasets() {
+  return [sales7, exp7].map((data, i) => ({
+    label: SERIES[i].label,
+    data,
+    backgroundColor: cssVar(SERIES[i].colorVar),
+    borderRadius: 4,
+    maxBarThickness: 22,
+  }));
+}
+
+function lineDatasets() {
+  return [mSales, mExp].map((data, i) => {
+    const color = cssVar(SERIES[i].colorVar);
+    return {
+      label: SERIES[i].label,
+      data,
+      borderColor: color,
+      backgroundColor: withAlpha(color, 0.08),
+      borderWidth: 2,
+      tension: 0.35,
+      fill: i === 0,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      pointBackgroundColor: color,
+    };
+  });
+}
+
+const weekChart = new Chart(document.getElementById('weekChart'), {
+  type: 'bar',
+  data: { labels: labels7, datasets: barDatasets() },
+  options: themedOptions(),
+});
+
+const monthChart = new Chart(document.getElementById('monthChart'), {
+  type: 'line',
+  data: { labels: mLabels, datasets: lineDatasets() },
+  options: themedOptions(),
+});
+
 window.addEventListener('sv-theme-change', () => {
-  refreshChartTheme(weekChart);
-  refreshChartTheme(monthChart);
+  weekChart.data.datasets = barDatasets();
+  weekChart.options = themedOptions();
+  weekChart.update();
+  monthChart.data.datasets = lineDatasets();
+  monthChart.options = themedOptions();
+  monthChart.update();
 });
 </script>
 {% endblock %}

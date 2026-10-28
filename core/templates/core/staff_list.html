@@ -45,11 +45,10 @@
         <!-- Header -->
         <div class="d-flex align-items-start gap-3 mb-3">
           <div class="avatar" style="width:48px;height:48px;font-size:18px;flex-shrink:0;
-            background:linear-gradient(135deg,
-            {% if member.role == 'owner' %}#f59e0b,#d97706
-            {% elif member.role == 'manager' %}#3b82f6,#2563eb
-            {% elif member.role == 'cashier' %}#10b981,#059669
-            {% else %}#8b5cf6,#7c3aed{% endif %});">
+            {% if member.role == 'owner' %}background:var(--amber-soft);color:var(--amber);
+            {% elif member.role == 'manager' %}background:var(--brand-soft);color:var(--brand-ink);
+            {% elif member.role == 'cashier' %}background:var(--green-soft);color:var(--green);
+            {% else %}background:var(--surface-2);color:var(--text-2);{% endif %}">
             {{ member.name|slice:":1"|upper }}
           </div>
           <div style="flex:1;min-width:0;">

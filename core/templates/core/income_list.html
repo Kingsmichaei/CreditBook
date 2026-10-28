@@ -7,7 +7,7 @@
   <div class="page-header">
     <div>
       <div class="page-header-title">Income Records</div>
-      <div class="page-header-sub">Total: <span style="color:var(--accent);font-weight:700;">₦{{ total|floatformat:0 }}</span></div>
+      <div class="page-header-sub">Total: <span style="color:var(--green);font-weight:700;">₦{{ total|floatformat:0 }}</span></div>
     </div>
     <a href="{% url 'income_add' %}" class="btn-sv btn-sv-primary">
       <i class="bi bi-plus-circle-fill"></i> Record Income
@@ -32,7 +32,7 @@
         <tr>
           <td style="font-weight:600;">{{ item.description }}</td>
           <td><span class="sv-badge badge-green">{{ item.get_category_display }}</span></td>
-          <td style="font-family:var(--font-display);font-weight:700;color:var(--accent);">₦{{ item.amount|floatformat:0 }}</td>
+          <td style="font-family:var(--font-display);font-weight:700;color:var(--green);">₦{{ item.amount|floatformat:0 }}</td>
           <td style="color:var(--text-2);">{{ item.date }}</td>
           <td style="color:var(--text-3);font-size:13px;">{{ item.notes|truncatechars:30|default:"—" }}</td>
           <td>

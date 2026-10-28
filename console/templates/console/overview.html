@@ -122,7 +122,7 @@
             <span>{{ row.label }}</span><span style="color:var(--text);font-weight:700;">{{ row.count }}</span>
           </div>
           <div style="height:6px;background:var(--surface-2);border-radius:4px;overflow:hidden;margin-top:4px;">
-            <div style="height:100%;border-radius:4px;width:{% widthratio row.count total_tenants|default:1 100 %}%;background:{% if row.key == 'active' %}var(--accent){% elif row.key == 'trial' %}var(--accent-blue){% elif row.key == 'suspended' %}var(--accent-3){% elif row.key == 'cancelled' %}var(--text-3){% else %}var(--accent-2){% endif %};"></div>
+            <div style="height:100%;border-radius:4px;width:{% widthratio row.count total_tenants|default:1 100 %}%;background:{% if row.key == 'active' %}var(--green){% elif row.key == 'trial' %}var(--accent-blue){% elif row.key == 'suspended' %}var(--accent-3){% elif row.key == 'cancelled' %}var(--text-3){% else %}var(--accent-2){% endif %};"></div>
           </div>
         </a>
         {% endfor %}
@@ -271,7 +271,7 @@
   }
 
   const naira = v => '₦' + Number(v).toLocaleString();
-  barChart('revenueChart', read('chart-revenue'), '--accent', naira);
+  barChart('revenueChart', read('chart-revenue'), '--green', naira);
   barChart('signupChart', read('chart-signups'), '--accent-blue', v => Number(v).toLocaleString());
 
   window.addEventListener('sv-theme-change', () => {

@@ -3,24 +3,34 @@
 {% block title %}Delete account | CreditBook{% endblock %}
 
 {% block content %}
-  <h2 class="fw-bold mb-2">Delete your account</h2>
-  <p class="text-muted">This will permanently remove your CreditBook account and workspace data. This action cannot be undone.</p>
-  <form method="post" class="mt-4">
+  <div class="notice notice-error"><i class="bi bi-exclamation-triangle-fill"></i><div>This permanently deletes your account and all workspace data. It can't be undone.</div></div>
+  <h1 class="auth-title">Delete your account</h1>
+  {% if code_sent %}
+    <p class="auth-sub">Enter the six-digit code we emailed you to confirm. The code expires in 15 minutes.</p>
+  {% else %}
+    <p class="auth-sub">To confirm it's you, type the email address on your account. We'll send a verification code.</p>
+  {% endif %}
+  <form method="post">
     {% csrf_token %}
     {% if code_sent %}
-      <div class="mb-3">
-        <label class="form-label" for="verification_code">Verification code</label>
-        <input type="text" id="verification_code" name="verification_code" class="form-control" maxlength="6" required />
+      <div class="field">
+        <label class="field-label" for="verification_code">Verification code</label>
+        <div class="input-wrap">
+          <i class="bi bi-shield-lock input-icon"></i>
+          <input type="text" id="verification_code" name="verification_code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456" autofocus required />
+        </div>
       </div>
-      <p class="text-muted mb-3">Enter the six-digit code we sent to your email to confirm account deletion.</p>
-      <button type="submit" class="btn btn-danger w-100">Delete my account</button>
+      <button type="submit" class="btn btn-danger w-100">Permanently delete my account</button>
     {% else %}
-      <div class="mb-3">
-        <label class="form-label" for="confirm_email">Type your email to confirm</label>
-        <input type="email" id="confirm_email" name="confirm_email" class="form-control" placeholder="you@company.com" required />
+      <div class="field">
+        <label class="field-label" for="confirm_email">Email address</label>
+        <div class="input-wrap">
+          <i class="bi bi-envelope input-icon"></i>
+          <input type="email" id="confirm_email" name="confirm_email" placeholder="you@company.com" autocomplete="email" autofocus required />
+        </div>
       </div>
       <button type="submit" class="btn btn-danger w-100">Send verification code</button>
     {% endif %}
   </form>
-  <a href="{% url 'dashboard' %}" class="btn btn-outline-light w-100 mt-3">Cancel</a>
+  <a href="{% url 'dashboard' %}" class="btn btn-outline-light w-100 mt-3">Cancel, keep my account</a>
 {% endblock %}

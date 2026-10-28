@@ -7,7 +7,7 @@
   <div class="page-header">
     <div>
       <div class="page-header-title">Sales Records</div>
-      <div class="page-header-sub">Total: <span style="color:var(--accent);font-weight:700;">₦{{ total|floatformat:0 }}</span></div>
+      <div class="page-header-sub">Total: <span style="color:var(--green);font-weight:700;">₦{{ total|floatformat:0 }}</span></div>
     </div>
     <div class="d-flex gap-2">
       <a href="{% url 'sales_export' %}{% if q %}?q={{ q }}{% endif %}" class="btn-sv btn-sv-secondary">
@@ -61,7 +61,7 @@
           </td>
           <td>{{ sale.quantity }}</td>
           <td>₦{{ sale.unit_price|floatformat:0 }}</td>
-          <td style="font-family:var(--font-display);font-weight:700;color:var(--accent);">₦{{ sale.total|floatformat:0 }}</td>
+          <td style="font-family:var(--font-display);font-weight:700;color:var(--green);">₦{{ sale.total|floatformat:0 }}</td>
           <td>
             <span class="sv-badge {% if sale.payment_method == 'cash' %}badge-green{% elif sale.payment_method == 'credit' %}badge-red{% elif sale.payment_method == 'transfer' %}badge-blue{% else %}badge-amber{% endif %}">
               {{ sale.get_payment_method_display }}

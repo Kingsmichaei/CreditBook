@@ -22,69 +22,17 @@
     /* ═══════════════════════════════════════════════
        DESIGN TOKENS
     ═══════════════════════════════════════════════ */
+{% include 'core/_tokens.html' %}
     :root {
-      --font: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
       --max-w: 1160px;
       --r-lg: 16px;
       --r: 12px;
       --r-sm: 8px;
       --ease: 0.2s ease;
-
-      --green: #16a34a;
-      --amber: #d97706;
-      --red: #dc2626;
-      --whatsapp: #25d366;
     }
 
-    [data-theme="light"] {
-      --bg: #ffffff;
-      --bg-subtle: #f7f8fa;
-      --surface: #ffffff;
-      --surface-2: #f2f4f7;
-      --border: #e4e7ec;
-      --border-2: #d0d5dd;
-      --text: #101828;
-      --text-2: #475467;
-      --text-3: #667085;
-      --brand: #2563eb;
-      --brand-hover: #1d4ed8;
-      --brand-soft: #eff4ff;
-      --brand-ink: #1d4ed8;
-      --on-brand: #ffffff;
-      --green-soft: #ecfdf3;
-      --amber-soft: #fffaeb;
-      --red-soft: #fef3f2;
-      --nav-bg: rgba(255,255,255,0.85);
-      --shadow-sm: 0 1px 2px rgba(16,24,40,0.05);
-      --shadow: 0 12px 32px -8px rgba(16,24,40,0.12), 0 4px 8px -4px rgba(16,24,40,0.06);
-      --shadow-lg: 0 32px 64px -16px rgba(16,24,40,0.18);
-      color-scheme: light;
-    }
-
-    [data-theme="dark"] {
-      --bg: #0b0f17;
-      --bg-subtle: #0f1420;
-      --surface: #131a27;
-      --surface-2: #1a2233;
-      --border: #222b3c;
-      --border-2: #2f3a50;
-      --text: #f2f4f7;
-      --text-2: #a7b0c2;
-      --text-3: #7d879b;
-      --brand: #4f8cff;
-      --brand-hover: #6b9fff;
-      --brand-soft: rgba(79,140,255,0.12);
-      --brand-ink: #8fb4ff;
-      --on-brand: #ffffff;
-      --green-soft: rgba(22,163,74,0.14);
-      --amber-soft: rgba(217,119,6,0.14);
-      --red-soft: rgba(220,38,38,0.14);
-      --nav-bg: rgba(11,15,23,0.82);
-      --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-      --shadow: 0 12px 32px -8px rgba(0,0,0,0.5);
-      --shadow-lg: 0 32px 64px -16px rgba(0,0,0,0.6);
-      color-scheme: dark;
-    }
+    [data-theme="light"] { --bg: #ffffff; --bg-subtle: #f7f8fa; }
+    [data-theme="dark"]  { --bg: #0b0f17; --bg-subtle: #0f1420; }
 
     /* ═══════════════════════════════════════════════
        BASE

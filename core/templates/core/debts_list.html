@@ -24,7 +24,7 @@
     <a href="?filter=overdue" class="btn-sv {% if filter_type == 'overdue' %}btn-sv-danger{% else %}btn-sv-glass{% endif %}" style="font-size:13px;padding:8px 16px;">
       <i class="bi bi-exclamation-triangle"></i> Overdue
     </a>
-    <a href="?filter=paid" class="btn-sv {% if filter_type == 'paid' %}btn-sv-glass{% else %}btn-sv-glass{% endif %}" style="font-size:13px;padding:8px 16px;{% if filter_type == 'paid' %}border-color:var(--accent);color:var(--accent);{% endif %}">
+    <a href="?filter=paid" class="btn-sv {% if filter_type == 'paid' %}btn-sv-glass{% else %}btn-sv-glass{% endif %}" style="font-size:13px;padding:8px 16px;{% if filter_type == 'paid' %}border-color:var(--green);color:var(--green);{% endif %}">
       <i class="bi bi-check-circle"></i> Paid
     </a>
     <a href="?filter=all" class="btn-sv btn-sv-glass" style="font-size:13px;padding:8px 16px;{% if filter_type == 'all' %}border-color:var(--text-2);{% endif %}">
@@ -36,7 +36,7 @@
   <div class="row g-3">
     {% for debt in debts %}
     <div class="col-12 col-md-6 col-lg-4">
-      <div class="glass-card p-4" style="border-left:3px solid {% if debt.is_paid %}var(--accent){% elif debt.is_overdue %}var(--accent-3){% else %}var(--accent-2){% endif %};">
+      <div class="glass-card p-4" style="border-left:3px solid {% if debt.is_paid %}var(--green){% elif debt.is_overdue %}var(--accent-3){% else %}var(--accent-2){% endif %};">
         <div class="d-flex align-items-start justify-content-between mb-3">
           <div class="d-flex align-items-center gap-2">
             <div class="avatar" style="width:40px;height:40px;font-size:15px;">{{ debt.customer.name|slice:":1"|upper }}</div>
@@ -47,7 +47,7 @@
               <div style="font-size:12px;color:var(--text-3);">{{ debt.created_at|date:"M j, Y" }}</div>
             </div>
           </div>
-          <div style="font-family:var(--font-display);font-weight:800;font-size:18px;color:{% if debt.is_paid %}var(--accent){% else %}var(--accent-3){% endif %};">
+          <div style="font-family:var(--font-display);font-weight:800;font-size:18px;color:{% if debt.is_paid %}var(--green){% else %}var(--accent-3){% endif %};">
             ₦{{ debt.amount|floatformat:0 }}
           </div>
         </div>
@@ -75,7 +75,7 @@
 
         <div class="d-flex align-items-center gap-2 flex-wrap">
           {% if not debt.is_paid %}
-          <a href="{% url 'debt_mark_paid' debt.pk %}" class="btn-sv btn-sv-glass" style="font-size:12px;padding:7px 12px;color:var(--accent);border-color:rgba(0,229,160,0.2);">
+          <a href="{% url 'debt_mark_paid' debt.pk %}" class="btn-sv btn-sv-glass" style="font-size:12px;padding:7px 12px;color:var(--green);border-color:transparent;background:var(--green-soft);">
             <i class="bi bi-check-lg"></i> Mark Paid
           </a>
           {% endif %}

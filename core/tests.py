@@ -40,7 +40,7 @@ class TenantRegistrationTests(TestCase):
         response = self.client.get(reverse('register'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Let's Get Started")
+        self.assertContains(response, 'Create your account')
 
     def test_registration_creates_tenant_and_logs_user_in(self):
         response = self.client.post(reverse('register'), {
@@ -200,6 +200,22 @@ class StaffNavigationTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotContains(response, reverse('billing_dashboard'))
         self.assertNotContains(response, 'Billing')
+
+
+    def test_sidebar_shows_the_members_actual_role(self):
+        owner = get_user_model().objects.create_user(username='owner4', email='owner4@example.com', password='StrongPass123')
+        tenant = Tenant.objects.create(owner=owner, business_name='Acme Traders', slug='acme4')
+        TenantMembership.objects.create(user=owner, tenant=tenant, role='owner')
+        member = get_user_model().objects.create_user(username='member4', email='member4@example.com', password='StrongPass123')
+        TenantMembership.objects.create(user=member, tenant=tenant, role='staff')
+
+        self.client.force_login(owner)
+        self.assertContains(self.client.get(reverse('dashboard')), '>Owner</div>')
+
+        self.client.force_login(member)
+        response = self.client.get(reverse('dashboard'))
+        self.assertContains(response, '>Team member</div>')
+        self.assertNotContains(response, 'Owner / Admin')
 
 
 class StaffAuthenticationTests(TestCase):
